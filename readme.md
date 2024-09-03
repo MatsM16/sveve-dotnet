@@ -4,6 +4,11 @@
 
 A dotnet client written in C# for the REST-APIs provided by [Sveve](#https://sveve.no/).
 
+- [Send a SMS](#send-a-sms)
+- [Configure SMS sending](#configure-sms-sending)
+- [Manage recipient groups](#manage-recipient-groups)
+- [Manage account](#manage-account)
+
 ## Send a SMS
 A message can be created by instantiating a `SendSmsRequest` object.
 ```cs
@@ -29,7 +34,7 @@ await client.Sms.SendAsync(request, cancellationToken);
 
 If the list of receivers grow very large, you might want to look into [receiver groups](#manage-recipient-groups)
 
-## Advanced SMS sending
+## Configure SMS sending
 The `SendSmsRequest` can be further configured:
 
 ### Spesify sender
