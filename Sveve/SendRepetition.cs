@@ -46,25 +46,25 @@ public sealed class SendRepetition
     /// Creates a new <see cref="SendRepetition"/> that repeats every <paramref name="hours"/> hours.
     /// </summary>
     /// <param name="hours">Number of hours between each subsequent sms.</param>
-    public static SendRepetition Hourly(int hours) => new(hours, HourUnit);
+    public static SendRepetition Hourly(int hours = 1) => new(hours, HourUnit);
 
     /// <summary>
     /// Creates a new <see cref="SendRepetition"/> that repeats every <paramref name="days"/> days.
     /// </summary>
     /// <param name="days">Number of days between each subsequent sms.</param>
-    public static SendRepetition Daily(int days) => new (days, DayUnit);
+    public static SendRepetition Daily(int days = 1) => new (days, DayUnit);
 
     /// <summary>
     /// Creates a new <see cref="SendRepetition"/> that repeats every <paramref name="weeks"/> weeks.
     /// </summary>
     /// <param name="weeks">Number of weeks between each subsequent sms.</param>
-    public static SendRepetition Weekly(int weeks) => new(weeks, WeekUnit);
+    public static SendRepetition Weekly(int weeks = 1) => new(weeks, WeekUnit);
 
     /// <summary>
     /// Creates a new <see cref="SendRepetition"/> that repeats every <paramref name="months"/> months.
     /// </summary>
     /// <param name="months">Number of months between each subsequent sms.</param>
-    public static SendRepetition Monthly(int months) => new(months, MonthUnit);
+    public static SendRepetition Monthly(int months = 1) => new(months, MonthUnit);
 
     /// <summary>
     /// Creates a new <see cref="SendRepetition"/> with the same frequency that stops after the given number of <paramref name="repeatedCount"/> times.
@@ -73,7 +73,7 @@ public sealed class SendRepetition
     /// This overrides existing endings.
     /// </remarks>
     /// <param name="repeatedCount">Number of times the messages will be sent.</param>
-    public SendRepetition EndsAfter(int repeatedCount) => new (_unit, _value, endsAfter: _endsAfter);
+    public SendRepetition EndsAfter(int repeatedCount) => new (_unit, _value, endsAfter: repeatedCount);
 
     /// <summary>
     /// Creates a new <see cref="SendRepetition"/> with the same frequency that stops after the given <paramref name="date"/>.

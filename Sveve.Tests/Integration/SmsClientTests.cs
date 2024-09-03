@@ -52,7 +52,7 @@ public class SmsClientTests : IDisposable
         var success = new SendSmsRequest(PersonA.PhoneNumber, "Dette er en test");
         var notAMobileNumber = new SendSmsRequest("12345678", "Dette er en test");
 
-        var results = await _client.Sms.SendManyAsync([success, notAMobileNumber]);
+        var results = await _client.Sms.SendBulkAsync([success, notAMobileNumber]);
 
         var successResult = results.FirstOrDefault(x => x.ReceiverPhoneNumber == PersonA.PhoneNumber);
         Assert.NotNull(successResult);
@@ -69,7 +69,7 @@ public class SmsClientTests : IDisposable
         var realRequest = new SendSmsRequest(PersonA.PhoneNumber, "Dette er ikke en test");
         var testRequest = new SendSmsRequest(PersonB.PhoneNumber, "Dette er en test") { IsTest = true };
 
-        await Assert.ThrowsAsync<ArgumentException>(() => _client.Sms.SendManyAsync([realRequest, testRequest]));
+        await Assert.ThrowsAsync<ArgumentException>(() => _client.Sms.SendBulkAsync([realRequest, testRequest]));
     }
 
     public void Dispose()

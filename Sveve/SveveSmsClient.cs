@@ -25,6 +25,15 @@ public sealed class SveveSmsClient
         _client = client;
     }
 
+    /// <summary>
+    /// Sends a single SMS message to a single receiver.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns>The result for the single sent SMS.</returns>
+    /// <exception cref="ArgumentNullException">Request is null.</exception>
+    /// <exception cref="ArgumentException">Receiver is not a single phone number.</exception>
+    /// <exception cref="SendSmsFailedException">The sending as a whole failed.</exception>
     public async Task<SendSmsResult> SendSingleAsync(SendSmsRequest request, CancellationToken cancellationToken = default)
     {
         if (request is null)
@@ -34,11 +43,36 @@ public sealed class SveveSmsClient
         if (receivers.Count is 0 or > 1)
             throw new ArgumentException($"{nameof(SendSingleAsync)} can only send to exactly one phone number.");
 
-        var results = await SendManyAsync([request], cancellationToken).ConfigureAwait(false);
+        var results = await SendAsync(request, cancellationToken).ConfigureAwait(false);
         return results.FirstOrDefault() ?? SendSmsResult.Failed(request.Receiver, "Could not get a response");
     }
 
-    public async Task<List<SendSmsResult>> SendManyAsync(IEnumerable<SendSmsRequest> requests,  CancellationToken cancellationToken = default)
+    /// <summary>
+    /// Sends a single SMS to one or more receivers.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns>One result per sent SMS.</returns>
+    /// <exception cref="ArgumentNullException">Request is null.</exception>
+    /// <exception cref="SendSmsFailedException">The sending as a whole failed.</exception>
+    public async Task<List<SendSmsResult>> SendAsync(SendSmsRequest request, CancellationToken cancellationToken = default)
+    {
+        if (request is null)
+            throw new ArgumentNullException(nameof(request));
+
+        return await SendBulkAsync([request], cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Sends one or more SMS messages.
+    /// </summary>
+    /// <param name="requests">One or more send requests.</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns>A result for each sent SMS.</returns>
+    /// <exception cref="ArgumentNullException">Request list is null.</exception>
+    /// <exception cref="ArgumentException">Requests contains test and real messages.</exception>
+    /// <exception cref="SendSmsFailedException">The sending as a whole failed.</exception>
+    public async Task<List<SendSmsResult>> SendBulkAsync(IEnumerable<SendSmsRequest> requests,  CancellationToken cancellationToken = default)
     {
         if (requests is null)
             throw new ArgumentNullException(nameof(requests));
