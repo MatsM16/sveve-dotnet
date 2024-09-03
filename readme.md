@@ -1,6 +1,6 @@
 # Sveve.Net
 
-![Sveve logo](./docs/logo-sveve.svg)
+![Sveve logo](./docs/logo.svg)
 
 A dotnet client written in C# for the REST-APIs provided by [Sveve](#https://sveve.no/).
 
