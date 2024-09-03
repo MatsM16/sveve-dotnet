@@ -4,10 +4,27 @@
 
 A dotnet client written in C# for the REST-APIs provided by [Sveve](#https://sveve.no/).
 
+- [Get started](#get-started)
 - [Send a SMS](#send-a-sms)
 - [Configure SMS sending](#configure-sms-sending)
 - [Manage recipient groups](#manage-recipient-groups)
 - [Manage account](#manage-account)
+
+## Get started
+You can either create a `SveveClient` directly:
+```cs
+var client = new SveveClient(new SveveClientOptions
+{
+    Username = "MyCompanyUsername",
+    Password = "super_secret_password";
+});
+```
+or using the `IServiceCollection` extension:
+```cs
+services.AddSveveClient(new SveveClientOptions { ... });
+```
+Using the extension method registers a `SveveClient`, `SveveSmsClient`, `SveveGroupClient` and a `SveveAdminClient`.  
+All clients are registered as singletons.  
 
 ## Send a SMS
 A message can be created by instantiating a `SendSmsRequest` object.
