@@ -71,7 +71,7 @@ See the `SmsRepetition` class for more.
 
 ## Manage recipient groups
 
-TODO
+Implemented, but documentation is comming...
 
 ## Administer account
 Request more SMS units
