@@ -73,7 +73,7 @@ See the `SmsRepetition` class for more.
 
 Implemented, but documentation is comming...
 
-## Administer account
+## Manage account
 Request more SMS units
 ```cs
 SveveClient client = ...;
