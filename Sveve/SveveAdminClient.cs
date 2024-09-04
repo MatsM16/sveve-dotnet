@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Text.Encodings.Web;
 using System.Threading;
 using System.Threading.Tasks;
+using Sveve.Extensions;
 
 namespace Sveve;
 
@@ -31,8 +31,7 @@ public sealed class SveveAdminClient
         if (count < ORDER_MIN_COUNT || count > ORDER_MAX_COUNT)
             throw new ArgumentOutOfRangeException(nameof(count), count, $"{nameof(count)} must be between {ORDER_MIN_COUNT} and {ORDER_MAX_COUNT} (both inclusive)");
 
-        var response = await _client.HttpClient.GetAsync($"SMS/AccountAdm?cmd=order_sms&count={count}&user={UrlEncoder.Default.Encode(_client.Options.Username)}&passwd={UrlEncoder.Default.Encode(_client.Options.Password)}", cancellationToken).ConfigureAwait(false);
-        response.EnsureSuccessStatusCode();
+        await _client.SendCommandAsync("SMS/AccountAdm", "order_sms", new() { ["count"] = count.ToString() }, cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -40,9 +39,7 @@ public sealed class SveveAdminClient
     /// </summary>
     public async Task<int> RemainingSmsAsync(CancellationToken cancellationToken = default)
     {
-        var response = await _client.HttpClient.GetAsync($"SMS/AccountAdm?cmd=sms_count&user={UrlEncoder.Default.Encode(_client.Options.Username)}&passwd={UrlEncoder.Default.Encode(_client.Options.Password)}", cancellationToken).ConfigureAwait(false);
-        response.EnsureSuccessStatusCode();
-        var responseAsString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-        return int.Parse(responseAsString);
+        var response = await _client.SendCommandAsync("SMS/AccountAdm", "sms_count", [], cancellationToken).ConfigureAwait(false);
+        return int.Parse(response);
     }
 }

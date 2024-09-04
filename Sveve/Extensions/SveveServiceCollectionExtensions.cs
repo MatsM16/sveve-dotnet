@@ -1,9 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace Sveve;
+namespace Sveve.Extensions;
 
 /// <summary>
 /// Extension methods to help register <see cref="SveveClient"/> on the service container.

@@ -1,11 +1,12 @@
 using Microsoft.Extensions.DependencyInjection;
+using Sveve.Extensions;
 
 namespace Sveve.Tests.Unit;
 
 public class ServiceCollectionTests
 {
     [Fact]
-    public void AddsSveveServices()
+    public void AddSveveClient()
     {
         var services = new ServiceCollection();
 

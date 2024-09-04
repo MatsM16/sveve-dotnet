@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Text.Encodings.Web;
 using System.Threading;
 using System.Threading.Tasks;
+using Sveve.Extensions;
 
 namespace Sveve;
 
@@ -19,12 +18,31 @@ public sealed class SveveGroupClient
         _client = client;
     }
 
+    /// <summary>
+    /// Creates a new group. 
+    /// </summary>
+    /// <remarks>
+    /// Does nothing if the group already exists.
+    /// </remarks>
+    /// <param name="group">Name of the group.</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     public Task CreateAsync(string group, CancellationToken cancellationToken = default) => SendAsync("add_group", new() { ["group"] = group }, cancellationToken);
 
+    /// <summary>
+    /// Moves all recipients from one <paramref name="fromGroup"/> to <paramref name="toGroup"/>.
+    /// </summary>
+    /// <remarks>
+    /// Does nothing if <paramref name="fromGroup"/> does not exist. <br/>
+    /// If <paramref name="toGroup"/> does not exist, it will be created.
+    /// </remarks>
+    /// <param name="fromGroup">Name of group to take recipients from.</param>
+    /// <param name="toGroup">Name of group to receive recipients.</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     public async Task MoveRecipientsAsync(string fromGroup, string toGroup, CancellationToken cancellationToken = default)
     {
         var result = await MoveRecipientsCore(fromGroup, toGroup, cancellationToken).ConfigureAwait(false);
-
         if (result.StartsWith($"Gruppen finnes ikke: {toGroup}"))
         {
             await CreateAsync(toGroup, cancellationToken).ConfigureAwait(false);
@@ -32,51 +50,100 @@ public sealed class SveveGroupClient
         }
     }
 
+    /// <summary>
+    /// Deletes a group.
+    /// </summary>
+    /// <remarks>
+    /// Does nothing if the group does not exist.
+    /// </remarks>
+    /// <param name="group">Name of the group to delete.</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     public Task DeleteAsync(string group, CancellationToken cancellationToken = default) => SendAsync("delete_group", new() { ["group"] = group }, cancellationToken);
 
+    /// <summary>
+    /// Lists the names of all groups.
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     public async Task<List<string>> ListAsync(CancellationToken cancellationToken = default)
     {
-        var listAsString = await SendAsync("list_groups", new() { }, cancellationToken).ConfigureAwait(false);
-        return listAsString.Split('\n').Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
+        var result = await SendAsync("list_groups", [], cancellationToken).ConfigureAwait(false);
+        return result.Split('\n').Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
     }
 
+    /// <summary>
+    /// Lists all the recipients in a group.
+    /// </summary>
+    /// <param name="group"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     public async Task<List<GroupRecipient>> ListRecipientsAsync(string group, CancellationToken cancellationToken = default)
     {
-        var listAsString = await SendAsync("list_recipients", new() { ["group"] = group }, cancellationToken).ConfigureAwait(false);
-        return listAsString.Split('\n').Where(x => !string.IsNullOrWhiteSpace(x)).Select(GroupRecipient.Parse).ToList();
+        var result = await SendAsync("list_recipients", new() { ["group"] = group }, cancellationToken).ConfigureAwait(false);
+        var lines = GroupDoesNotExist(result, group) ? [] : result.Split('\n');
+        return lines.Where(x => !string.IsNullOrWhiteSpace(x)).Select(GroupRecipient.Parse).ToList();
     }
 
-    public Task AddRecipientAsync(string group, string recipientName, string phoneNumber, CancellationToken cancellationToken = default) => SendAsync("add_recipient", new() { ["group"] = group, ["name"] = recipientName, ["number"] = phoneNumber }, cancellationToken);
+    /// <summary>
+    /// Adds a recipient to a group.
+    /// </summary>
+    /// <remarks>
+    /// If <paramref name="group"/> does not exist, it will be created.
+    /// </remarks>
+    /// <param name="group">Name of the group.</param>
+    /// <param name="recipientName">Display name for the recipient.</param>
+    /// <param name="phoneNumber">Phone number of the recipient.</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    public async Task AddRecipientAsync(string group, string recipientName, string phoneNumber, CancellationToken cancellationToken = default)
+    {
+        var result = await AddRecipientCore(group, recipientName, phoneNumber, cancellationToken).ConfigureAwait(false);
+        if (GroupDoesNotExist(result, group))
+        {
+            await CreateAsync(group, cancellationToken);
+            await AddRecipientCore(group, recipientName, phoneNumber, cancellationToken).ConfigureAwait(false);
+        }
+    }
 
+    /// <summary>
+    /// Removes a recipient from a group.
+    /// </summary>
+    /// <remarks>
+    /// Does nothing if the group or recipient does not exist.
+    /// </remarks>
+    /// <param name="group">Name of the group.</param>
+    /// <param name="phoneNumber">Phone number of the recipient.</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     public Task RemoveRecipientAsync(string group, string phoneNumber, CancellationToken cancellationToken = default) => SendAsync("delete_recipient", new() { ["group"] = group, ["number"] = phoneNumber }, cancellationToken);
 
+    /// <summary>
+    /// Moves a single recipient from one group to another.
+    /// </summary>
+    /// <remarks>
+    /// Does nothing if the <paramref name="fromGroup"/> or recipient does not exist. <br/>
+    /// If <paramref name="toGroup"/> does not exist, it will be created.
+    /// </remarks>
+    /// <param name="fromGroup">Group to take recipient from.</param>
+    /// <param name="toGroup">Group to add recipient to.</param>
+    /// <param name="phoneNumber">Phone number of recipient.</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     public async Task MoveRecipientAsync(string fromGroup, string toGroup, string phoneNumber, CancellationToken cancellationToken = default)
     {
         var result = await MoveRecipientCore(fromGroup, toGroup, phoneNumber, cancellationToken).ConfigureAwait(false);
-
-        if (result.StartsWith($"Gruppen finnes ikke: {toGroup}"))
+        if (GroupDoesNotExist(result, toGroup))
         {
             await CreateAsync(toGroup, cancellationToken).ConfigureAwait(false);
             await MoveRecipientCore(fromGroup, toGroup, phoneNumber, cancellationToken).ConfigureAwait(false);
         }
     }
 
-    private async Task<string> SendAsync(string command, Dictionary<string,string> parameters, CancellationToken cancellationToken)
-    {
-        var commandBuilder = new StringBuilder().Append("SMS/RecipientAdm?");
+    private static bool GroupDoesNotExist(string response, string group) => response.StartsWith($"Gruppen finnes ikke: {group}");
 
-        parameters.Add("user", _client.Options.Username);
-        parameters.Add("passwd", _client.Options.Password);
-        parameters.Add("cmd", command);
-        foreach (var pair in parameters)
-            commandBuilder.Append(pair.Key).Append('=').Append(UrlEncoder.Default.Encode(pair.Value)).Append('&');
-
-        var response = await _client.HttpClient.GetAsync(commandBuilder.ToString(), cancellationToken).ConfigureAwait(false);
-        var responseText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-        response.EnsureSuccessStatusCode();
-        return responseText;
-    }
-
+    private Task<string> SendAsync(string command, Dictionary<string,string> parameters, CancellationToken cancellationToken) => _client.SendCommandAsync("SMS/RecipientAdm", command, parameters, cancellationToken);
     private Task<string> MoveRecipientsCore(string fromGroup, string toGroup, CancellationToken cancellationToken) => SendAsync("move_group", new() { ["group"] = fromGroup, ["new_group"] = toGroup }, cancellationToken);
     private Task<string> MoveRecipientCore(string fromGroup, string toGroup, string phoneNumber, CancellationToken cancellationToken) => SendAsync("move_recipient", new() { ["group"] = fromGroup, ["new_group"] = toGroup, ["number"] = phoneNumber }, cancellationToken);
+    private Task<string> AddRecipientCore(string group, string recipientName, string phoneNumber, CancellationToken cancellationToken) => SendAsync("add_recipient", new() { ["group"] = group, ["name"] = recipientName, ["number"] = phoneNumber }, cancellationToken);
 }
