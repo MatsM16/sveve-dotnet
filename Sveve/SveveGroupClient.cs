@@ -43,7 +43,7 @@ public sealed class SveveGroupClient
     public async Task MoveRecipientsAsync(string fromGroup, string toGroup, CancellationToken cancellationToken = default)
     {
         var result = await MoveRecipientsCore(fromGroup, toGroup, cancellationToken).ConfigureAwait(false);
-        if (result.StartsWith($"Gruppen finnes ikke: {toGroup}"))
+        if (GroupDoesNotExist(result, toGroup))
         {
             await CreateAsync(toGroup, cancellationToken).ConfigureAwait(false);
             await MoveRecipientsCore(fromGroup, toGroup, cancellationToken).ConfigureAwait(false);
