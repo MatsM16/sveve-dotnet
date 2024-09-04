@@ -6,8 +6,8 @@ namespace Sveve.Tests;
 public static class TestEnvironment
 {
     public static IConfiguration Configuration { get; } = new ConfigurationBuilder()
-        .AddEnvironmentVariables()
         .AddAppSettings()
+        .AddEnvironmentVariables()
         .Build();
 }
 
