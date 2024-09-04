@@ -2,4 +2,4 @@ bin/
 obj/
 .vs/
 
-Sveve.Tests/appsettings.local.json
+Sveve.Tests/appsettings*.json
