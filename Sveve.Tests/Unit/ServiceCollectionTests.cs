@@ -19,9 +19,19 @@ public class ServiceCollectionTests
 
         var provider = services.BuildServiceProvider();
 
-        Assert.NotNull(provider.GetService<SveveClient>());
-        Assert.NotNull(provider.GetService<SveveSmsClient>());
-        Assert.NotNull(provider.GetService<SveveAdminClient>());
-        Assert.NotNull(provider.GetService<SveveGroupClient>());
+        AssertSingleton<SveveClient>(provider);
+        AssertSingleton<SveveSmsClient>(provider);
+        AssertSingleton<SveveAdminClient>(provider);
+        AssertSingleton<SveveGroupClient>(provider);
+    }
+
+    private static void AssertSingleton<TService>(IServiceProvider provider)
+    {
+        var instance1 = provider.GetService<TService>();
+        var instance2 = provider.GetService<TService>();
+
+        Assert.NotNull(instance1);
+        Assert.NotNull(instance2);
+        Assert.Equal(instance1, instance2);
     }
 }

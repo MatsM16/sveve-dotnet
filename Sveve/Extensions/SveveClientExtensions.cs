@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace Sveve.Extensions;
 
+/// <summary>
+/// Extensions for the SveveClient.
+/// </summary>
 public static class SveveClientExtensions
 {
     internal static async Task<string> SendCommandAsync(this SveveClient client, string endpoint, string command, Dictionary<string,string> parameters, CancellationToken cancellationToken)

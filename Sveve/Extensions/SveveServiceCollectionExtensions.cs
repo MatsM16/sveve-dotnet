@@ -10,6 +10,7 @@ public static class SveveServiceCollectionExtensions
 {
     /// <inheritdoc cref="AddSveveClient(IServiceCollection, Func{IServiceProvider, SveveClientOptions})" />
     /// <param name="options"></param>
+    /// <param name="services"></param>
     public static IServiceCollection AddSveveClient(this IServiceCollection services, SveveClientOptions options)
     {
         return services.AddSveveClient(_ => options);
