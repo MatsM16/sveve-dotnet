@@ -2,9 +2,7 @@ namespace Sveve.Tests.Integration;
 
 public class SmsClientTests : IDisposable
 {
-    private const string Sender = "SveveDotnet";
     private static readonly TestPerson PersonA = new("Line Danser", "99999999");
-    private static readonly TestPerson PersonB = new("Roland Gundersen", "44444444");
 
     private readonly SveveClient _client = new(new()
     {
@@ -14,62 +12,46 @@ public class SmsClientTests : IDisposable
     });
 
     [Fact]
-    public async Task SendSingleSms()
+    public async Task SendSingleAsync()
     {
-        var success = await _client.Sms.SendSingleAsync(new SendSmsRequest(PersonA.PhoneNumber, "Dette er en test")
-        {
-            Sender = Sender,
-            IsTest = true
-        });
+        var messageId = await _client.Sms.SendSingleAsync(PersonA.PhoneNumber, "Dette er en test");
+        Assert.True(messageId > 0);
+    }
 
+    [Fact]
+    public async Task SendSingleAsync_ThrowsIfNotSingleMobilePhoneNumber()
+    {
+        await Assert.ThrowsAsync<ArgumentException>(() => _client.Sms.SendSingleAsync("my group name", "Dette er en test"));
+        await Assert.ThrowsAsync<ArgumentException>(() => _client.Sms.SendSingleAsync("12345678,12345678", "Dette er en test"));
+        await Assert.ThrowsAsync<SmsNotSentException>(() => _client.Sms.SendSingleAsync("12345678", "Dette er en test"));
+    }
+
+    [Fact]
+    public async Task SendAsync()
+    {
+        var results = await _client.Sms.SendAsync($"{PersonA.PhoneNumber},12345678", "Dette er en test");
+        Assert.True(results.Count is 2);
+
+        var success = results.FirstOrDefault(x => x.ReceiverPhoneNumber == PersonA.PhoneNumber);
         Assert.NotNull(success);
-        Assert.True(success.IsSuccess);
-        Assert.True(success.MessageId > 0);
-        Assert.Null(success.Error);
+        Assert.True(success.IsSentSuccessfully);
 
-        var notANumber = await _client.Sms.SendSingleAsync(new SendSmsRequest("not a phone number", "Dette er en test") { Sender = Sender });
-
-        Assert.NotNull(notANumber);
-        Assert.False(notANumber.IsSuccess);
-        Assert.Throws<InvalidOperationException>(() => notANumber.MessageId);
-        Assert.Equal("Telefonnummeret kan bare inneholde tall", notANumber.Error);
-
-        var notAMobileNumber = await _client.Sms.SendSingleAsync(new SendSmsRequest("12345678", "Dette er en test")
-        {
-            Sender = Sender,
-            IsTest = true
-        });
-
-        Assert.NotNull(notAMobileNumber);
-        Assert.False(notAMobileNumber.IsSuccess);
-        Assert.Throws<InvalidOperationException>(() => notAMobileNumber.MessageId);
-        Assert.Equal("Telefonnummeret er ikke et mobilnummer", notAMobileNumber.Error);
+        var failed = results.FirstOrDefault(x => x.ReceiverPhoneNumber == "12345678");
+        Assert.NotNull(failed);
+        Assert.False(failed.IsSentSuccessfully);
+        Assert.Equal("Telefonnummeret er ikke et mobilnummer", failed.Error);
     }
 
     [Fact]
-    public async Task SendManyAsync()
+    public async Task SendAsync_VerifiesParameters()
     {
-        var success = new SendSmsRequest(PersonA.PhoneNumber, "Dette er en test");
-        var notAMobileNumber = new SendSmsRequest("12345678", "Dette er en test");
+        await Assert.ThrowsAsync<ArgumentNullException>(() => _client.Sms.SendAsync(null!, "Dette er en test"));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => _client.Sms.SendAsync("", "Dette er en test"));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => _client.Sms.SendAsync(" ", "Dette er en test"));
 
-        var results = await _client.Sms.SendBulkAsync([success, notAMobileNumber]);
-
-        var successResult = results.FirstOrDefault(x => x.ReceiverPhoneNumber == PersonA.PhoneNumber);
-        Assert.NotNull(successResult);
-        Assert.True(successResult.IsSuccess);
-
-        var notAMobileNumberResult = results.FirstOrDefault(x => x.ReceiverPhoneNumber == "12345678");
-        Assert.NotNull(notAMobileNumberResult);
-        Assert.False(notAMobileNumberResult.IsSuccess);
-    }
-
-    [Fact]
-    public async Task SendManyAsync_ThrowsIfMixOfTest()
-    {
-        var realRequest = new SendSmsRequest(PersonA.PhoneNumber, "Dette er ikke en test");
-        var testRequest = new SendSmsRequest(PersonB.PhoneNumber, "Dette er en test") { IsTest = true };
-
-        await Assert.ThrowsAsync<ArgumentException>(() => _client.Sms.SendBulkAsync([realRequest, testRequest]));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => _client.Sms.SendAsync(PersonA.PhoneNumber, null!));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => _client.Sms.SendAsync(PersonA.PhoneNumber, ""));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => _client.Sms.SendAsync(PersonA.PhoneNumber, " "));
     }
 
     public void Dispose()

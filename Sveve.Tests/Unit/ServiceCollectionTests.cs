@@ -19,6 +19,7 @@ public class ServiceCollectionTests
 
         var provider = services.BuildServiceProvider();
 
+        AssertSingleton<SveveClientOptions>(provider);
         AssertSingleton<SveveClient>(provider);
         AssertSingleton<SveveSmsClient>(provider);
         AssertSingleton<SveveAdminClient>(provider);

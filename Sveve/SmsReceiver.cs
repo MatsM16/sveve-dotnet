@@ -17,7 +17,13 @@ internal class SmsReceiver
 
     public bool IsReceiver(string receiver) => receiver.Contains(_receiver);
 
-    public SendSmsResult CreateOkSendResponse(int messageId, bool isTest) => SendSmsResult.Ok(_receiver, messageId, isTest);
+    public SmsResult CreateOkResult(int messageId, bool isTest) => SmsResult.Ok(_receiver, messageId, isTest);
 
     public static List<SmsReceiver> From(string? receivers) => receivers?.Split(',').Select(receiver => new SmsReceiver(receiver)).ToList() ?? [];
+
+    public static bool IsSinglePhoneNumber(string? receivers)
+    {
+        var parsed = From(receivers);
+        return parsed.Count is 1 && parsed[0].IsPhoneNumber;
+    }
 }

@@ -18,12 +18,12 @@ public sealed class SveveClientOptions
     public string Password { get; set; } = null!;
 
     /// <summary>
-    /// If <see langword="true"/>, the all messages automatically have <see cref="SendSmsRequest.IsTest"/> set to <see langword="true"/>.
+    /// If <see langword="true"/>, the all messages automatically have <see cref="SmsOptions.IsTest"/> set to <see langword="true"/>.
     /// </summary>
     public bool IsTest { get; set; }
 
     /// <summary>
-    /// Optional sender name. Can be overridden on the individual <see cref="SendSmsRequest"/>.
+    /// Optional sender name. Can be overridden by <see cref="SmsOptions.Sender"/>.
     /// </summary>
     public string? Sender { get; set; }
 

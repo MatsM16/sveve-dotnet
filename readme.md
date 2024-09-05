@@ -23,38 +23,40 @@ or using the `IServiceCollection` extension:
 ```cs
 services.AddSveveClient(new SveveClientOptions { ... });
 ```
-Using the extension method registers a `SveveClient`, `SveveSmsClient`, `SveveGroupClient` and a `SveveAdminClient`.  
+Using the extension method registers a `SveveClient`, `SveveSmsClient`, `SveveGroupClient`, `SveveAdminClient` and the `SveveClientOptions`.  
 All clients are registered as singletons.  
 
 ## Send a SMS
-A message can be created by instantiating a `SendSmsRequest` object.
 ```cs
-var receiver = "98765432";
-var text = "The actual content of the SMS";
-var request = new SendSmsRequest(receiver, text);
+// Send SMS to a single phone number
+await client.Sms.SendAsync("98765432", "The actual content of the SMS");
 
-// Send the SMS
-SveveClient client = ...;
-await client.Sms.SendAsync(request, cancellationToken);
+// Send SMS to two spesific phone numbers
+await client.Sms.SendAsync("98765432,90876543", "Drink water!");
+
+// Send SMS to a named group
+await client.Sms.SendAsync("people-who-dont-drink-enough-water", "Drink more water!");
+```
+To manage the named groups, see [receiver groups](#manage-recipient-groups)  
+  
+`SveveSmsClient.SendAsync` returns a list of `SmsResult`-objects which contains information about the sending of each individual sms.  
+If you only intend to send the SMS to a single receiver, you could use:
+```cs
+var messageId = await client.Sms.SendSingleAsync("98765432", "The actual content of the SMS");
+```
+`SendSingleAsync` throws if sending fails and returns the message-id from Sveve directly.
+
+## SMS Options
+When sending a SMS, you can pass a `SmsOptions`-object to alter how the SMS is sent.
+```cs
+var options = new SmsOptions
+{
+    ...
+}
+await client.Sms.SendAsync("98765432", "Some text message...", options);
 ```
 
-If you want to send a single SMS to a few receivers, you can specify multiple receivers separated by a comma:
-```cs
-// Can be a phone number, recipient group or list of both.
-var text = "...";
-var request = new SendSmsRequest(receivers, text);
-
-// Send the SMS
-SveveClient client = ...;
-await client.Sms.SendAsync(request, cancellationToken);
-```
-
-If the list of receivers grow very large, you might want to look into [receiver groups](#manage-recipient-groups)
-
-## Configure SMS sending
-The `SendSmsRequest` can be further configured:
-
-### Spesify sender
+### Custom sender
 To specify the sender, add a `Sender` property to either the `SveveClientOptions`:
 ```cs
 var client = new SveveClient(new SveveClientOptions
@@ -66,30 +68,35 @@ var client = new SveveClient(new SveveClientOptions
 ```
 or to the `SendSmsRequest` itself:
 ```cs
-var request = new SendSmsRequest(receiver, text)
+var options = new SmsOptions
 {
     Sender = "My company"
 };
 ```
 
-If `Sender` is specified in both `SveveClientOptions` and `SendSmsRequest`, `SendSmsRequest.Sender` is used.
+If `Sender` is specified in both `SveveClientOptions` and `SmsOptions`, `SmsOptions.Sender` is used.  
+When a receiver sees your message, the `Sender` will be used as a display name.
 
 ### Repeat a SMS
-The `SendSmsRequest.Repeat` property can be used to configure repetition of a SMS:
+The `SmsOptions.Repeat` property can be used to configure repetition of a SMS:
 ```cs
-SendSmsRequest request = ...;
+var options = new SmsOptions();
 
 // Repeat message every 2 days until message has been sent three times
-request.Repeat = SmsRepetition
+options.Repeat = SmsRepetition
     .Daily(days: 2)
     .EndsAfter(repeatedCount: 3);
 
 // Repeat message once a week for two months.
-request.Repeat = SmsRepetition
+options.Repeat = SmsRepetition
     .Weekly()
     .EndsOn(DateTime.Today.AddMonths(2));
 ```
 See the `SmsRepetition` class for more.
+
+### Test a message
+To test sending messages, add `IsTest=true` to either `SveveClientOptions` or `SmsOptions`.  
+If `SveveClientOptions.IsTest` is `true`, all messages will be sent as test messages regardless of the `SmsOptions.IsTest` value.
 
 ## Manage recipient groups
 
@@ -98,16 +105,12 @@ Implemented, but documentation is coming...
 ## Manage account
 Request more SMS units
 ```cs
-SveveClient client = ...;
-
 // Order 400 additional SMS units.
 await client.Admin.OrderSmsAsync(count:400);
 ```
 
 Check remaining SMS units
 ```cs
-SveveClient client = ...;
-
 var smsCount = await client.Admin.RemainingSmsAsync();
 if (smsCount < 400)
 {

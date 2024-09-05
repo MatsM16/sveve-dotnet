@@ -8,17 +8,19 @@
 
   <PropertyGroup>
     <PackageId>Sveve</PackageId>
-    <Version>0.0.1</Version>
+    <Version>0.0.1-preview</Version>
     <Description>A .NET client for the Sveve SMS service</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Authors>Mats Dyrøy</Authors>
     <Copyright>Copyright © 2024 Mats Dyrøy</Copyright>
-    <RepositoryUrl>https://github.com/MatsM16/sveve-dotnet</RepositoryUrl>
+    <RepositoryUrl>https://github.com/MatsM16/sveve-dotnet.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <PackageTags>sveve, sms</PackageTags>
+    <PackageTags>sveve; sms</PackageTags>
     <PackageIcon>icon.png</PackageIcon>
     <PackageReadmeFile>readme.md</PackageReadmeFile>
     <PackageLicenseFile>license.txt</PackageLicenseFile>
+    <PackageProjectUrl>https://sveve.no/</PackageProjectUrl>
+    <IncludeSymbols>true</IncludeSymbols>
   </PropertyGroup>
 
   <ItemGroup>
