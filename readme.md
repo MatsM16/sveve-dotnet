@@ -66,7 +66,7 @@ var client = new SveveClient(new SveveClientOptions
     // other properties ...
 });
 ```
-or to the `SendSmsRequest` itself:
+or to the `SmsOptions` itself:
 ```cs
 var options = new SmsOptions
 {
