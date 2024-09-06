@@ -10,6 +10,7 @@ A dotnet client written in C# for the REST-APIs provided by [Sveve](https://svev
 - [Configure SMS sending](#configure-sms-sending)
 - [Manage recipient groups](#manage-recipient-groups)
 - [Manage account](#manage-account)
+- [Get inspired](https://sveve.no/artikler/inspirasjon) (_Norwegian only_)
 
 ## Get started
 You can either create a `SveveClient` directly:
@@ -111,8 +112,27 @@ To test sending messages, add `IsTest=true` to either `SveveClientOptions` or `S
 If `SveveClientOptions.IsTest` is `true`, all messages will be sent as test messages regardless of the `SmsOptions.IsTest` value.
 
 ## Manage recipient groups
+Groups can be a useful way to reach large amounts of people with the same SMS.  
+**Note:** You will be charged for each individual SMS.
 
-Implemented, but documentation is coming...
+A group is created either by explicitly calling
+```cs
+await client.Group.CreateAsync("my-group");
+```
+or by adding the first receiver
+```cs
+await client.Group.AddRecipientAsync("my-group", "Some Person", "12345678");
+```
+
+You can now send an sms to every member of a group by calling the normal send methods with the group name as the recipient.
+```cs
+await client.Sms.SendAsync("my-group", "Super-sale! Only on monday!")
+```
+
+Once you are done using the group, it can be deleted by calling
+```cs
+await client.Group.DeleteAsync("my-group");
+```
 
 ## Manage account
 Request more SMS units
