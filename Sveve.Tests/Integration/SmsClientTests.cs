@@ -1,3 +1,5 @@
+using System.Security.Authentication;
+
 namespace Sveve.Tests.Integration;
 
 public class SmsClientTests : IDisposable
@@ -21,9 +23,22 @@ public class SmsClientTests : IDisposable
     [Fact]
     public async Task SendSingleAsync_ThrowsIfNotSingleMobilePhoneNumber()
     {
-        await Assert.ThrowsAsync<ArgumentException>(() => _client.Sms.SendSingleAsync("my group name", "Dette er en test"));
-        await Assert.ThrowsAsync<ArgumentException>(() => _client.Sms.SendSingleAsync("12345678,12345678", "Dette er en test"));
-        await Assert.ThrowsAsync<SmsNotSentException>(() => _client.Sms.SendSingleAsync("12345678", "Dette er en test"));
+        await Assert.ThrowsAsync<ArgumentException>(() => _client.Sms.SendSingleAsync("my group name", "A group name"));
+        await Assert.ThrowsAsync<ArgumentException>(() => _client.Sms.SendSingleAsync("411111111,411111111", "Not a single number"));
+        await Assert.ThrowsAsync<SmsNotSentException>(() => _client.Sms.SendSingleAsync("12345678", "Not a mobile number"));
+    }
+
+    [Fact]
+    public async Task SendSingleAsync_ThrowsInvalidCredentialException()
+    {
+        var client = new SveveClient(new()
+        {
+            Username = "invalid",
+            Password = "invalid",
+            IsTest = true
+        });
+
+        await Assert.ThrowsAsync<InvalidCredentialException>(() => client.Sms.SendSingleAsync(PersonA.PhoneNumber, "Dette er en test"));
     }
 
     [Fact]
@@ -52,6 +67,19 @@ public class SmsClientTests : IDisposable
         await Assert.ThrowsAsync<ArgumentNullException>(() => _client.Sms.SendAsync(PersonA.PhoneNumber, null!));
         await Assert.ThrowsAsync<ArgumentNullException>(() => _client.Sms.SendAsync(PersonA.PhoneNumber, ""));
         await Assert.ThrowsAsync<ArgumentNullException>(() => _client.Sms.SendAsync(PersonA.PhoneNumber, " "));
+    }
+
+    [Fact]
+    public async Task SendAsync_ThrowsInvalidCredentialException()
+    {
+        var client = new SveveClient(new()
+        {
+            Username = "invalid",
+            Password = "invalid",
+            IsTest = true
+        });
+
+        await Assert.ThrowsAsync<InvalidCredentialException>(() => client.Sms.SendAsync(PersonA.PhoneNumber, "Dette er en test"));
     }
 
     public void Dispose()

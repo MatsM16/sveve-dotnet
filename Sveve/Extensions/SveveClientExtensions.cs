@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Security.Authentication;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading;
@@ -9,7 +10,7 @@ namespace Sveve.Extensions;
 /// <summary>
 /// Extensions for the SveveClient.
 /// </summary>
-public static class SveveClientExtensions
+internal static class SveveClientExtensions
 {
     internal static async Task<string> SendCommandAsync(this SveveClient client, string endpoint, string command, Dictionary<string,string> parameters, CancellationToken cancellationToken)
     {
@@ -24,6 +25,10 @@ public static class SveveClientExtensions
         var response = await client.HttpClient.GetAsync(commandBuilder.ToString(), cancellationToken).ConfigureAwait(false);
         var responseText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
+
+        if (responseText.StartsWith("Feil brukernavn/passord"))
+            throw new InvalidCredentialException();
+
         return responseText;
     }
 }

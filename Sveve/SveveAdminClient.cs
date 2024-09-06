@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Security.Authentication;
 using System.Threading;
 using System.Threading.Tasks;
 using Sveve.Extensions;
@@ -23,9 +24,10 @@ public sealed class SveveAdminClient
     /// Orders <paramref name="count"/> SMS units.
     /// </summary>
     /// <remarks>
-    /// <paramref name="count"/> must be between <c>500</c> and <c>100000</c> (inclusive).
+    /// <paramref name="count"/> must be between <c>500</c> and <c>100 000</c> (inclusive).
     /// </remarks>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="count"/> is less than 500 or greater than 100000.</exception>
+    /// <exception cref="InvalidCredentialException">The username/password combination is invalid.</exception>
     public async Task OrderSmsAsync(int count, CancellationToken cancellationToken = default)
     {
         if (count < ORDER_MIN_COUNT || count > ORDER_MAX_COUNT)
@@ -37,6 +39,7 @@ public sealed class SveveAdminClient
     /// <summary>
     /// Returns the number of SMS units remaining.
     /// </summary>
+    /// <exception cref="InvalidCredentialException">The username/password combination is invalid.</exception>
     public async Task<int> RemainingSmsAsync(CancellationToken cancellationToken = default)
     {
         var response = await _client.SendCommandAsync("SMS/AccountAdm", "sms_count", [], cancellationToken).ConfigureAwait(false);

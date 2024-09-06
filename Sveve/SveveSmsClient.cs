@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Security.Authentication;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
@@ -37,6 +38,7 @@ public sealed class SveveSmsClient
     /// <exception cref="ArgumentNullException">Request is null.</exception>
     /// <exception cref="ArgumentException">Receiver is not a single phone number.</exception>
     /// <exception cref="SmsNotSentException">The SMS failed to send.</exception>
+    /// <exception cref="InvalidCredentialException">The username/password combination is invalid.</exception>
     public async Task<int> SendSingleAsync(string mobilePhoneNUmber, string message, SmsOptions? options = null, CancellationToken cancellationToken = default)
     {
         if (SmsReceiver.IsSinglePhoneNumber(mobilePhoneNUmber) is false)
@@ -59,6 +61,7 @@ public sealed class SveveSmsClient
     /// <exception cref="ArgumentNullException"></exception>
     /// <exception cref="ArgumentException"></exception>
     /// <exception cref="SmsNotSentException">The sending as a whole failed.</exception>
+    /// <exception cref="InvalidCredentialException">The username/password combination is invalid.</exception>
     public async Task<List<SmsResult>> SendAsync(string receivers, string message, SmsOptions? options = null, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(receivers))
@@ -84,6 +87,9 @@ public sealed class SveveSmsClient
 
         if (response is null)
             return [];
+
+        if (string.Equals(response.FatalError, "Feil brukernavn/passord", StringComparison.OrdinalIgnoreCase))
+            throw new InvalidCredentialException();
 
         if (string.IsNullOrWhiteSpace(response.FatalError) is false)
             throw new SmsNotSentException(response.FatalError);

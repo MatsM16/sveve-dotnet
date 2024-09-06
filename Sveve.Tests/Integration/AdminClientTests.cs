@@ -1,3 +1,5 @@
+using System.Security.Authentication;
+
 namespace Sveve.Tests.Integration;
 
 public class AdminClientTests : IDisposable
@@ -14,6 +16,20 @@ public class AdminClientTests : IDisposable
     {
         var remainingSmsUnits = await _client.Admin.RemainingSmsAsync();
         Assert.True(remainingSmsUnits > 0, "The configured account has no remaining SMS units");
+    }
+
+    
+    [Fact]
+    public async Task ThrowsInvalidCredentialException()
+    {
+        var client = new SveveClient(new()
+        {
+            Username = "invalid",
+            Password = "invalid"
+        });
+
+        await Assert.ThrowsAsync<InvalidCredentialException>(() => client.Admin.OrderSmsAsync(count: 500));
+        await Assert.ThrowsAsync<InvalidCredentialException>(() => client.Admin.RemainingSmsAsync());
     }
 
     public void Dispose()

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Security.Authentication;
 using System.Threading;
 using System.Threading.Tasks;
 using Sveve.Extensions;
@@ -27,6 +28,7 @@ public sealed class SveveGroupClient
     /// <param name="group">Name of the group.</param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
+    /// <exception cref="InvalidCredentialException">The username/password combination is invalid.</exception>
     public Task CreateAsync(string group, CancellationToken cancellationToken = default) => SendAsync("add_group", new() { ["group"] = group }, cancellationToken);
 
     /// <summary>
@@ -40,6 +42,7 @@ public sealed class SveveGroupClient
     /// <param name="toGroup">Name of group to receive recipients.</param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
+    /// <exception cref="InvalidCredentialException">The username/password combination is invalid.</exception>
     public async Task MoveRecipientsAsync(string fromGroup, string toGroup, CancellationToken cancellationToken = default)
     {
         var result = await MoveRecipientsCore(fromGroup, toGroup, cancellationToken).ConfigureAwait(false);
@@ -59,6 +62,7 @@ public sealed class SveveGroupClient
     /// <param name="group">Name of the group to delete.</param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
+    /// <exception cref="InvalidCredentialException">The username/password combination is invalid.</exception>
     public Task DeleteAsync(string group, CancellationToken cancellationToken = default) => SendAsync("delete_group", new() { ["group"] = group }, cancellationToken);
 
     /// <summary>
@@ -78,6 +82,7 @@ public sealed class SveveGroupClient
     /// <param name="group"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
+    /// <exception cref="InvalidCredentialException">The username/password combination is invalid.</exception>
     public async Task<List<GroupRecipient>> ListRecipientsAsync(string group, CancellationToken cancellationToken = default)
     {
         var result = await SendAsync("list_recipients", new() { ["group"] = group }, cancellationToken).ConfigureAwait(false);
@@ -96,6 +101,7 @@ public sealed class SveveGroupClient
     /// <param name="phoneNumber">Phone number of the recipient.</param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
+    /// <exception cref="InvalidCredentialException">The username/password combination is invalid.</exception>
     public async Task AddRecipientAsync(string group, string recipientName, string phoneNumber, CancellationToken cancellationToken = default)
     {
         var result = await AddRecipientCore(group, recipientName, phoneNumber, cancellationToken).ConfigureAwait(false);
@@ -116,6 +122,7 @@ public sealed class SveveGroupClient
     /// <param name="phoneNumber">Phone number of the recipient.</param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
+    /// <exception cref="InvalidCredentialException">The username/password combination is invalid.</exception>
     public Task RemoveRecipientAsync(string group, string phoneNumber, CancellationToken cancellationToken = default) => SendAsync("delete_recipient", new() { ["group"] = group, ["number"] = phoneNumber }, cancellationToken);
 
     /// <summary>
@@ -130,6 +137,7 @@ public sealed class SveveGroupClient
     /// <param name="phoneNumber">Phone number of recipient.</param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
+    /// <exception cref="InvalidCredentialException">The username/password combination is invalid.</exception>
     public async Task MoveRecipientAsync(string fromGroup, string toGroup, string phoneNumber, CancellationToken cancellationToken = default)
     {
         var result = await MoveRecipientCore(fromGroup, toGroup, phoneNumber, cancellationToken).ConfigureAwait(false);
