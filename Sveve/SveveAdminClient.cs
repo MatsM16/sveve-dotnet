@@ -26,7 +26,10 @@ public sealed class SveveAdminClient
     /// Orders <paramref name="count"/> SMS units.
     /// </summary>
     /// <remarks>
-    /// <paramref name="count"/> must be one of <c>500</c>, <c>2 000</c>, <c>5 000</c>, <c>10 000</c>, <c>25 000</c>, <c>50 000</c>, or <c>100 000</c>.
+    /// <paramref name="count"/> must be one of <c>500</c>, <c>2 000</c>, <c>5 000</c>, <c>10 000</c>, <c>25 000</c>, <c>50 000</c>, or <c>100 000</c>. <br/>
+    /// Invoking this method will place a real order which costs real money. <br/>
+    /// Buying larger quantities is cheaper per unit. <br/>
+    /// For prices, see the <a href="https://sveve.no/tjenester">Sveve services and prices</a>.
     /// </remarks>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="count"/> is less than 500 or greater than 100000.</exception>
     /// <exception cref="InvalidCredentialException">The username/password combination is invalid.</exception>
