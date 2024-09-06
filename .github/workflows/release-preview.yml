@@ -24,4 +24,4 @@ jobs:
     - name: Pack
       run: dotnet pack --no-build --configuration Release --output ./artifacts --version-suffix "preview"
     - name: Publish
-      run: dotnet nuget push ./artifacts/*.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source "https://nuget.pkg.github.com/MatsM16/index.json"
+      run: dotnet nuget push ./artifacts/*.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source "https://nuget.pkg.github.com/MatsM16/index.json" --skip-duplicate
