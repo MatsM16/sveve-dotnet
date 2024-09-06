@@ -20,17 +20,17 @@ public class GroupClientTests : IAsyncLifetime
     [Fact]
     public async Task CreateGroup()
     {
-        await _client.Groups.CreateAsync(GroupA);
-        var groups = await _client.Groups.ListAsync();
+        await _client.Group.CreateAsync(GroupA);
+        var groups = await _client.Group.ListAsync();
         Assert.Contains(GroupA, groups);
     }
 
     [Fact]
     public async Task AddRecipient()
     {
-        await _client.Groups.AddRecipientAsync(GroupA, PersonA.Name, PersonA.PhoneNumber);
-        await _client.Groups.AddRecipientAsync(GroupA, PersonB.Name, PersonB.PhoneNumber);
-        var recipients = await _client.Groups.ListRecipientsAsync(GroupA);
+        await _client.Group.AddRecipientAsync(GroupA, PersonA.Name, PersonA.PhoneNumber);
+        await _client.Group.AddRecipientAsync(GroupA, PersonB.Name, PersonB.PhoneNumber);
+        var recipients = await _client.Group.ListRecipientsAsync(GroupA);
         Assert.Contains(recipients, x => x.PhoneNumber == PersonA.PhoneNumber);
         Assert.Contains(recipients, x => x.PhoneNumber == PersonB.PhoneNumber);
     }
@@ -38,16 +38,16 @@ public class GroupClientTests : IAsyncLifetime
     [Fact]
     public async Task MoveGroupRecipients()
     {
-        await _client.Groups.AddRecipientAsync(GroupA, PersonA.Name, PersonA.PhoneNumber);
-        await _client.Groups.AddRecipientAsync(GroupA, PersonB.Name, PersonB.PhoneNumber);
+        await _client.Group.AddRecipientAsync(GroupA, PersonA.Name, PersonA.PhoneNumber);
+        await _client.Group.AddRecipientAsync(GroupA, PersonB.Name, PersonB.PhoneNumber);
         
-        await _client.Groups.MoveRecipientsAsync(GroupA, GroupB);
+        await _client.Group.MoveRecipientsAsync(GroupA, GroupB);
         
-        var recipientsInB = await _client.Groups.ListRecipientsAsync(GroupB);
+        var recipientsInB = await _client.Group.ListRecipientsAsync(GroupB);
         Assert.Contains(recipientsInB, x => x.PhoneNumber == PersonA.PhoneNumber);
         Assert.Contains(recipientsInB, x => x.PhoneNumber == PersonB.PhoneNumber);
         
-        var recipientsInA = await _client.Groups.ListRecipientsAsync(GroupA);
+        var recipientsInA = await _client.Group.ListRecipientsAsync(GroupA);
         Assert.DoesNotContain(recipientsInA, x => x.PhoneNumber == PersonA.PhoneNumber);
         Assert.DoesNotContain(recipientsInA, x => x.PhoneNumber == PersonB.PhoneNumber);
     }
@@ -55,44 +55,44 @@ public class GroupClientTests : IAsyncLifetime
     [Fact]
     public async Task MoveSingleReceipient()
     {
-        await _client.Groups.AddRecipientAsync(GroupA, PersonA.Name, PersonA.PhoneNumber);
+        await _client.Group.AddRecipientAsync(GroupA, PersonA.Name, PersonA.PhoneNumber);
         
-        await _client.Groups.MoveRecipientsAsync(GroupA, GroupB);
+        await _client.Group.MoveRecipientsAsync(GroupA, GroupB);
 
-        var recipientsInB = await _client.Groups.ListRecipientsAsync(GroupB);
+        var recipientsInB = await _client.Group.ListRecipientsAsync(GroupB);
         Assert.Contains(recipientsInB, x => x.PhoneNumber == PersonA.PhoneNumber);
 
-        var recipientsInA = await _client.Groups.ListRecipientsAsync(GroupA);
+        var recipientsInA = await _client.Group.ListRecipientsAsync(GroupA);
         Assert.DoesNotContain(recipientsInA, x => x.PhoneNumber == PersonA.PhoneNumber);
     }
 
     [Fact]
     public async Task RemoveRecipients()
     {
-        var beforeAdd = await _client.Groups.ListRecipientsAsync(GroupA);
+        var beforeAdd = await _client.Group.ListRecipientsAsync(GroupA);
         Assert.Empty(beforeAdd);
 
-        await _client.Groups.AddRecipientAsync(GroupA, PersonA.Name, PersonA.PhoneNumber);
-        var afterAdd = await _client.Groups.ListRecipientsAsync(GroupA);
+        await _client.Group.AddRecipientAsync(GroupA, PersonA.Name, PersonA.PhoneNumber);
+        var afterAdd = await _client.Group.ListRecipientsAsync(GroupA);
         Assert.Contains(afterAdd, x => x.PhoneNumber == PersonA.PhoneNumber);
 
-        await _client.Groups.RemoveRecipientAsync(GroupA, PersonA.PhoneNumber);
-        var afterRemove = await _client.Groups.ListRecipientsAsync(GroupA);
+        await _client.Group.RemoveRecipientAsync(GroupA, PersonA.PhoneNumber);
+        var afterRemove = await _client.Group.ListRecipientsAsync(GroupA);
         Assert.DoesNotContain(afterRemove, x => x.PhoneNumber == PersonA.PhoneNumber);
     }
 
     [Fact]
     public async Task DeleteGroup()
     {
-        var beforeAdd = await _client.Groups.ListAsync();
+        var beforeAdd = await _client.Group.ListAsync();
         Assert.DoesNotContain(GroupA, beforeAdd);
 
-        await _client.Groups.CreateAsync(GroupA);
-        var afterAdd = await _client.Groups.ListAsync();
+        await _client.Group.CreateAsync(GroupA);
+        var afterAdd = await _client.Group.ListAsync();
         Assert.Contains(GroupA, afterAdd);
 
-        await _client.Groups.DeleteAsync(GroupA);
-        var afterDelete = await _client.Groups.ListAsync();
+        await _client.Group.DeleteAsync(GroupA);
+        var afterDelete = await _client.Group.ListAsync();
         Assert.DoesNotContain(GroupA, afterDelete);
     }
 
@@ -105,23 +105,23 @@ public class GroupClientTests : IAsyncLifetime
             Password = "invalid"
         });
 
-        await Assert.ThrowsAsync<InvalidCredentialException>(() => client.Groups.ListAsync());
-        await Assert.ThrowsAsync<InvalidCredentialException>(() => client.Groups.CreateAsync("group"));
-        await Assert.ThrowsAsync<InvalidCredentialException>(() => client.Groups.DeleteAsync("group"));
+        await Assert.ThrowsAsync<InvalidCredentialException>(() => client.Group.ListAsync());
+        await Assert.ThrowsAsync<InvalidCredentialException>(() => client.Group.CreateAsync("group"));
+        await Assert.ThrowsAsync<InvalidCredentialException>(() => client.Group.DeleteAsync("group"));
 
-        await Assert.ThrowsAsync<InvalidCredentialException>(() => client.Groups.ListRecipientsAsync("group"));
-        await Assert.ThrowsAsync<InvalidCredentialException>(() => client.Groups.AddRecipientAsync("group", "name", "number"));
-        await Assert.ThrowsAsync<InvalidCredentialException>(() => client.Groups.RemoveRecipientAsync("group", "number"));
+        await Assert.ThrowsAsync<InvalidCredentialException>(() => client.Group.ListRecipientsAsync("group"));
+        await Assert.ThrowsAsync<InvalidCredentialException>(() => client.Group.AddRecipientAsync("group", "name", "number"));
+        await Assert.ThrowsAsync<InvalidCredentialException>(() => client.Group.RemoveRecipientAsync("group", "number"));
 
-        await Assert.ThrowsAsync<InvalidCredentialException>(() => client.Groups.MoveRecipientsAsync("from", "to"));
-        await Assert.ThrowsAsync<InvalidCredentialException>(() => client.Groups.MoveRecipientAsync("from", "to", "number"));
+        await Assert.ThrowsAsync<InvalidCredentialException>(() => client.Group.MoveRecipientsAsync("from", "to"));
+        await Assert.ThrowsAsync<InvalidCredentialException>(() => client.Group.MoveRecipientAsync("from", "to", "number"));
     }
 
     public async Task DisposeAsync()
     {
-        await _client.Groups.DeleteAsync(GroupA);
-        await _client.Groups.DeleteAsync(GroupB);
-        await _client.Groups.DeleteAsync(GroupC);
+        await _client.Group.DeleteAsync(GroupA);
+        await _client.Group.DeleteAsync(GroupB);
+        await _client.Group.DeleteAsync(GroupC);
         _client.Dispose();
     }
 
