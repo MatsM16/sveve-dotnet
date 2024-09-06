@@ -8,7 +8,7 @@
 
   <PropertyGroup>
     <PackageId>Sveve</PackageId>
-    <Version>0.0.1-preview</Version>
+    <VersionPrefix>0.0.1</VersionPrefix>
     <Description>A .NET client for the Sveve SMS service</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Authors>Mats Dyrøy</Authors>
