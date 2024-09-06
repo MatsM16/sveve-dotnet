@@ -2,8 +2,9 @@
 
 ![Sveve logo](./docs/logo.svg)
 
-A dotnet client written in C# for the REST-APIs provided by [Sveve](https://sveve.no/).
-
+A dotnet client written in C# for the REST-APIs provided by [Sveve](https://sveve.no/).  
+**Note:** this is an unofficial library and not made or supported by Sveve.
+  
 - [Get started](#get-started)
 - [Send a SMS](#send-a-sms)
 - [Configure SMS sending](#configure-sms-sending)
