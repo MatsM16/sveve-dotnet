@@ -95,6 +95,10 @@ options.Repeat = SmsRepetition
 ```
 See the `SmsRepetition` class for more.
 
+### Schedule a SMS
+The `SmsOptions.ScheduledSendTime` configures when the message will be sent.  
+If the provided `DateTimeOffset` is earier than now, it is ignored.
+
 ### Test a message
 To test sending messages, add `IsTest=true` to either `SveveClientOptions` or `SmsOptions`.  
 If `SveveClientOptions.IsTest` is `true`, all messages will be sent as test messages regardless of the `SmsOptions.IsTest` value.

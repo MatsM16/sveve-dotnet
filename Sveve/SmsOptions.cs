@@ -1,3 +1,5 @@
+using System;
+
 namespace Sveve;
 
 /// <summary>
@@ -22,6 +24,11 @@ public class SmsOptions
 
     /// <inheritdoc cref="SendRepetition" />
     public SendRepetition? Repeat { get; set; } = SendRepetition.Never;
+
+    /// <summary>
+    /// The message will be schedule for sending at the given date and time.
+    /// </summary>
+    public DateTimeOffset? ScheduledSendTime { get; set; }
 
     /// <summary>
     /// Your own reference. This will be included in delivery reports.

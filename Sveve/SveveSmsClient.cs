@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Sveve.Extensions;
 
 namespace Sveve;
 
@@ -29,19 +30,19 @@ public sealed class SveveSmsClient
     /// Sends a single SMS message to a single receiver.
     /// </summary>
     /// <param name="mobilePhoneNUmber"></param>
-    /// <param name="content"></param>
+    /// <param name="message"></param>
     /// <param name="options"></param>
     /// <param name="cancellationToken"></param>
     /// <returns>The ID of the sent message.</returns>
     /// <exception cref="ArgumentNullException">Request is null.</exception>
     /// <exception cref="ArgumentException">Receiver is not a single phone number.</exception>
     /// <exception cref="SmsNotSentException">The SMS failed to send.</exception>
-    public async Task<int> SendSingleAsync(string mobilePhoneNUmber, string content, SmsOptions? options = null, CancellationToken cancellationToken = default)
+    public async Task<int> SendSingleAsync(string mobilePhoneNUmber, string message, SmsOptions? options = null, CancellationToken cancellationToken = default)
     {
         if (SmsReceiver.IsSinglePhoneNumber(mobilePhoneNUmber) is false)
             throw new ArgumentException($"{nameof(mobilePhoneNUmber)} must be a single mobile phone number.", nameof(mobilePhoneNUmber));
 
-        var results = await SendAsync(mobilePhoneNUmber, content, options, cancellationToken).ConfigureAwait(false);
+        var results = await SendAsync(mobilePhoneNUmber, message, options, cancellationToken).ConfigureAwait(false);
         var result = results.FirstOrDefault() ?? SmsResult.Failed(mobilePhoneNUmber, "Could not get a response");
 
         return result.MessageId;
@@ -51,23 +52,23 @@ public sealed class SveveSmsClient
     /// Sends a single SMS to one or more receivers.
     /// </summary>
     /// <param name="receivers"></param>
-    /// <param name="content"></param>
+    /// <param name="message"></param>
     /// <param name="options"></param>
     /// <param name="cancellationToken"></param>
     /// <returns>One result per sent SMS.</returns>
     /// <exception cref="ArgumentNullException"></exception>
     /// <exception cref="ArgumentException"></exception>
     /// <exception cref="SmsNotSentException">The sending as a whole failed.</exception>
-    public async Task<List<SmsResult>> SendAsync(string receivers, string content, SmsOptions? options = null, CancellationToken cancellationToken = default)
+    public async Task<List<SmsResult>> SendAsync(string receivers, string message, SmsOptions? options = null, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(receivers))
             throw new ArgumentNullException($"{nameof(receivers)} cannot be null or empty.", nameof(receivers));
 
-        if (string.IsNullOrWhiteSpace(content))
-            throw new ArgumentNullException($"{nameof(content)} cannot be null or empty.", nameof(content));
+        if (string.IsNullOrWhiteSpace(message))
+            throw new ArgumentNullException($"{nameof(message)} cannot be null or empty.", nameof(message));
 
         var properties = CreateProperties(options?.IsTest);
-        AddMessageProperties(properties, receivers, content);
+        AddMessageProperties(properties, receivers, message);
         AddOptionsProperties(properties, options);
 
         return await SendAsync(properties, receivers, cancellationToken).ConfigureAwait(false);
@@ -139,9 +140,12 @@ public sealed class SveveSmsClient
 
         if (options.Reference is not null)
             properties.Add("ref", options.Reference);
-
-        if (options.IsTest)
-            properties.Add("test", true);
+            
+        if (options.ScheduledSendTime.HasValue && options.ScheduledSendTime.Value > DateTimeOffset.UtcNow)
+        {
+            var norwegianScheduledSendTime = options.ScheduledSendTime.Value.ToNorwegianLocalTime();
+            properties.Add("time", norwegianScheduledSendTime.ToString("yyyyMMddHHmm"));
+        }
 
         options.Repeat?.AddProperties(properties);
     }
