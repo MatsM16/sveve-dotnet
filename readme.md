@@ -137,16 +137,16 @@ await client.Group.DeleteAsync("my-group");
 ## Manage account
 Request more SMS units
 ```cs
-// Order 400 additional SMS units.
-await client.Admin.OrderSmsAsync(count:400);
+// Order 500 additional SMS units.
+await client.Admin.OrderSmsAsync(count:500);
 ```
 
 Check remaining SMS units
 ```cs
 var smsCount = await client.Admin.RemainingSmsAsync();
-if (smsCount < 400)
+if (smsCount < 500)
 {
-    // Do stuff if less than 400
+    // Do stuff if less than 500
     // remaining SMS units.
 }
 ```
