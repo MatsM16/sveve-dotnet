@@ -3,6 +3,7 @@ name: Release (Preview)
 on:
   push:
     branches: [ "main" ]
+    paths: [ "Sveve.sln", "Sveve/**", "Sveve.Tests/**" ]
     
 jobs:
   release:
