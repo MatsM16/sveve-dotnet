@@ -99,6 +99,13 @@ See the `SmsRepetition` class for more.
 The `SmsOptions.ScheduledSendTime` configures when the message will be sent.  
 If the provided `DateTimeOffset` is earier than now, it is ignored.
 
+```cs
+await client.Sms.SendAsync("vip-customers", "Use promocode vip123 for special offer", new SmsOptions
+{
+    ScheduledSendTime = vipPromo.StartDate.AddDays(-1)
+});
+```
+
 ### Test a message
 To test sending messages, add `IsTest=true` to either `SveveClientOptions` or `SmsOptions`.  
 If `SveveClientOptions.IsTest` is `true`, all messages will be sent as test messages regardless of the `SmsOptions.IsTest` value.
