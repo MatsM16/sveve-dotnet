@@ -26,7 +26,7 @@ public class SveveClient : IDisposable
         Options = options;
         HttpClient = options.HttpClientFactory?.Invoke() ?? DefaultHttpClientFactory();
 
-        Groups = new SveveGroupClient(this);
+        Group = new SveveGroupClient(this);
         Admin = new SveveAdminClient(this);
         Sms = new SveveSmsClient(this);
     }
@@ -42,7 +42,7 @@ public class SveveClient : IDisposable
     internal HttpClient HttpClient { get; }
 
     /// <inheritdoc cref="SveveGroupClient"/>
-    public SveveGroupClient Groups { get; }
+    public SveveGroupClient Group { get; }
 
     /// <inheritdoc cref="SveveAdminClient"/>
     public SveveAdminClient Admin { get; }

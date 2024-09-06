@@ -35,7 +35,7 @@ public static class SveveServiceCollectionExtensions
         services.AddSingleton(sp => new SveveClient(sp.GetRequiredService<SveveClientOptions>()));
         services.AddSingleton(sp => sp.GetRequiredService<SveveClient>().Sms);
         services.AddSingleton(sp => sp.GetRequiredService<SveveClient>().Admin);
-        services.AddSingleton(sp => sp.GetRequiredService<SveveClient>().Groups);
+        services.AddSingleton(sp => sp.GetRequiredService<SveveClient>().Group);
         return services;
     }
 }
