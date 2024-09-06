@@ -150,3 +150,27 @@ if (smsCount < 400)
     // remaining SMS units.
 }
 ```
+
+# Preview builds
+If you want the preview builds add the NuGet source: `https://nuget.pkg.github.com/MatsM16/index.json`.  
+It should be noted that these builds are considered unstable at best and non-functional at worst.  
+Use at you own risk.
+
+# Contribute
+Sveve does a great job at keeping their API stable and has done so for many years.  
+I therefore do not expect to change this client in any significant way once released.  
+
+That said, I welcome contributions and discussions!  
+To build and test locally, clone this repository and make a new file:  
+`Sveve.Tests/appsettings.local.json`
+and write the following:
+```json
+{
+    "Sveve": {
+        "Username": "<your Sveve username>",
+        "Password": "<your Sveve password>"
+    }
+}
+```
+
+For obvious reasons, `Sveve.Tests/appsettings.local.json` is ignored by GitHub.
