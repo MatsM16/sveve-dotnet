@@ -1,13 +1,12 @@
 using System.Security.Authentication;
-using Microsoft.VisualStudio.TestPlatform.Common.Utilities;
 
 namespace Sveve.Tests.Integration;
 
 public class GroupClientTests : IAsyncLifetime
 {
-    private const string GroupA = "test-group-a";
-    private const string GroupB = "test-group-b";
-    private const string GroupC = "test-group-c";
+    private string GroupA = "test-group-" + Guid.NewGuid();
+    private string GroupB = "test-group-" + Guid.NewGuid();
+    private string GroupC = "test-group-" + Guid.NewGuid();
     private static readonly TestPerson PersonA = new("Line Danser", "99999999");
     private static readonly TestPerson PersonB = new("Roland Gundersen", "44444444");
 
