@@ -1,9 +1,8 @@
 name: Release
 
 on:
-  push:
-    branches: [ "main" ]
-    paths: [ "Sveve.sln", "Sveve/**", "Sveve.Tests/**" ]
+  release:
+    types: [published]
     
 jobs:
   release:
