@@ -38,7 +38,7 @@ public sealed class SveveAdminClient
         if (AllowedOrderSizes.Contains(count) is false)
             throw new ArgumentOutOfRangeException(nameof(count), count, $"{nameof(count)} must be one of {AllowedOrderSizesString}.");
 
-        await _client.Command("SMS/AccountAdm", "order_sms").AddParameter("count", count.ToString()).SendAsync(cancellationToken).ConfigureAwait(false);
+        await Command("order_sms").AddParameter("count", count.ToString()).SendAsync(cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -47,7 +47,9 @@ public sealed class SveveAdminClient
     /// <exception cref="InvalidCredentialException">The username/password combination is invalid.</exception>
     public async Task<int> RemainingSmsAsync(CancellationToken cancellationToken = default)
     {
-        var response = await _client.Command("SMS/AccountAdm", "sms_count").SendAsync(cancellationToken).ConfigureAwait(false);
+        var response = await Command("sms_count").SendAsync(cancellationToken).ConfigureAwait(false);
         return int.Parse(response);
     }
+
+    private SveveCommandBuilder Command(string action) => _client.Command("SMS/AccountAdm", action);
 }
