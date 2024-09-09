@@ -130,13 +130,16 @@ public sealed class SveveSmsClient
         properties["msg"] = sms;
     }
 
-    private static void AddOptionsProperties(Dictionary<string, object> properties, SmsOptions? options)
+    private void AddOptionsProperties(Dictionary<string, object> properties, SmsOptions? options)
     {
         if (options is null)
             return;
 
         if (options.Sender is not null)
             properties.Add("from", options.Sender);
+
+        else if (_client.Options.Sender is not null)
+            properties.Add("from", _client.Options.Sender);
 
         if (options.ReplyToMessageId is not null)
             properties.Add("reply_id", options.ReplyToMessageId);
