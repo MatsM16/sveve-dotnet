@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Security.Authentication;
@@ -156,4 +157,18 @@ public sealed class SveveGroupClient
     }
 
     private SveveCommandBuilder Command(string command) => _client.Command("SMS/RecipientAdm", command);
+
+    /// <summary>
+    /// Returns <see langword="true"/> if the group exists, otherwise <see langword="false"/>.
+    /// </summary>
+    /// <param name="group">Name of the group.</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidCredentialException">The username/password combination is invalid.</exception>
+    public async Task<bool> ExistsAsync(string group, CancellationToken cancellationToken = default)
+    {
+        var doesNotExist = Guid.NewGuid().ToString();
+        var result = await Command("delete_recipient").AddParameter("group", group).AddParameter("number", doesNotExist).SendAsync(cancellationToken).ConfigureAwait(false);
+        return GroupDoesNotExist(result, group) is false;
+    }
 }

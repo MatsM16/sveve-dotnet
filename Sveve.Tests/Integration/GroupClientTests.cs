@@ -1,4 +1,5 @@
 using System.Security.Authentication;
+using Microsoft.VisualStudio.TestPlatform.Common.Utilities;
 
 namespace Sveve.Tests.Integration;
 
@@ -97,6 +98,16 @@ public class GroupClientTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task ExistsAsync()
+    {
+        Assert.False(await _client.Group.ExistsAsync(GroupA));
+        await _client.Group.CreateAsync(GroupA);
+        Assert.True(await _client.Group.ExistsAsync(GroupA));
+        await _client.Group.DeleteAsync(GroupA);
+        Assert.False(await _client.Group.ExistsAsync(GroupA));
+    }
+
+    [Fact]
     public async Task ThrowsInvalidCredentialException()
     {
         var client = new SveveClient(new()
@@ -108,6 +119,7 @@ public class GroupClientTests : IAsyncLifetime
         await Assert.ThrowsAsync<InvalidCredentialException>(() => client.Group.ListAsync());
         await Assert.ThrowsAsync<InvalidCredentialException>(() => client.Group.CreateAsync("group"));
         await Assert.ThrowsAsync<InvalidCredentialException>(() => client.Group.DeleteAsync("group"));
+        await Assert.ThrowsAsync<InvalidCredentialException>(() => client.Group.ExistsAsync("group"));
 
         await Assert.ThrowsAsync<InvalidCredentialException>(() => client.Group.ListRecipientsAsync("group"));
         await Assert.ThrowsAsync<InvalidCredentialException>(() => client.Group.AddRecipientAsync("group", "name", "number"));
