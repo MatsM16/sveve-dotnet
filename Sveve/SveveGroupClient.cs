@@ -138,6 +138,35 @@ public sealed class SveveGroupClient
         return SendWithRequiredGroup(command, toGroup, cancellationToken);
     }
 
+    /// <summary>
+    /// Returns <see langword="true"/> if the group exists, otherwise <see langword="false"/>.
+    /// </summary>
+    /// <param name="group">Name of the group.</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidCredentialException">The username/password combination is invalid.</exception>
+    public async Task<bool> ExistsAsync(string group, CancellationToken cancellationToken = default)
+    {
+        var doesNotExist = Guid.NewGuid().ToString();
+        var result = await Command("delete_recipient").AddParameter("group", group).AddParameter("number", doesNotExist).SendAsync(cancellationToken).ConfigureAwait(false);
+        return GroupDoesNotExist(result, group) is false;
+    }
+
+    /// <summary>
+    /// Returns <see langword="true"/> if the group has the recipient, otherwise <see langword="false"/>.
+    /// </summary>
+    /// <param name="group">Name of the group.</param>
+    /// <param name="phoneNumber">Phone number of the receipient.</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidCredentialException">The username/password combination is invalid.</exception>
+    public async Task<bool> HasRecipientAsync(string group, string phoneNumber, CancellationToken cancellationToken = default)
+    {
+        var normalized = new SmsReceiver(phoneNumber);
+        var recipients = await ListRecipientsAsync(group, cancellationToken).ConfigureAwait(false);
+        return recipients.Any(x => normalized.IsReceiver(x.PhoneNumber));
+    }
+
     private static bool GroupDoesNotExist(string response, string group) => response.StartsWith($"Gruppen finnes ikke: {group}");
 
     /// <summary>
@@ -157,18 +186,4 @@ public sealed class SveveGroupClient
     }
 
     private SveveCommandBuilder Command(string command) => _client.Command("SMS/RecipientAdm", command);
-
-    /// <summary>
-    /// Returns <see langword="true"/> if the group exists, otherwise <see langword="false"/>.
-    /// </summary>
-    /// <param name="group">Name of the group.</param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
-    /// <exception cref="InvalidCredentialException">The username/password combination is invalid.</exception>
-    public async Task<bool> ExistsAsync(string group, CancellationToken cancellationToken = default)
-    {
-        var doesNotExist = Guid.NewGuid().ToString();
-        var result = await Command("delete_recipient").AddParameter("group", group).AddParameter("number", doesNotExist).SendAsync(cancellationToken).ConfigureAwait(false);
-        return GroupDoesNotExist(result, group) is false;
-    }
 }

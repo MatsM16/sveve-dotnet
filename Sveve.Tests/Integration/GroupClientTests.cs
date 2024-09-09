@@ -98,13 +98,23 @@ public class GroupClientTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task ExistsAsync()
+    public async Task Exists()
     {
         Assert.False(await _client.Group.ExistsAsync(GroupA));
         await _client.Group.CreateAsync(GroupA);
         Assert.True(await _client.Group.ExistsAsync(GroupA));
         await _client.Group.DeleteAsync(GroupA);
         Assert.False(await _client.Group.ExistsAsync(GroupA));
+    }
+
+    [Fact]
+    public async Task HasReceipient()
+    {
+        Assert.False(await _client.Group.HasRecipientAsync(GroupA, PersonA.PhoneNumber));
+        await _client.Group.AddRecipientAsync(GroupA, PersonA.Name, PersonA.PhoneNumber);
+        Assert.True(await _client.Group.HasRecipientAsync(GroupA, PersonA.PhoneNumber));
+        await _client.Group.RemoveRecipientAsync(GroupA, PersonA.PhoneNumber);
+        Assert.False(await _client.Group.HasRecipientAsync(GroupA, PersonA.PhoneNumber));
     }
 
     [Fact]
@@ -124,6 +134,7 @@ public class GroupClientTests : IAsyncLifetime
         await Assert.ThrowsAsync<InvalidCredentialException>(() => client.Group.ListRecipientsAsync("group"));
         await Assert.ThrowsAsync<InvalidCredentialException>(() => client.Group.AddRecipientAsync("group", "name", "number"));
         await Assert.ThrowsAsync<InvalidCredentialException>(() => client.Group.RemoveRecipientAsync("group", "number"));
+        await Assert.ThrowsAsync<InvalidCredentialException>(() => client.Group.HasRecipientAsync("group", "number"));
 
         await Assert.ThrowsAsync<InvalidCredentialException>(() => client.Group.MoveRecipientsAsync("from", "to"));
         await Assert.ThrowsAsync<InvalidCredentialException>(() => client.Group.MoveRecipientAsync("from", "to", "number"));

@@ -7,9 +7,9 @@ internal class SmsReceiver
 {
     private readonly string _receiver;
 
-    private SmsReceiver(string receiver)
+    internal SmsReceiver(string receiver)
     {
-        _receiver = receiver.Replace(" ", "");
+        _receiver = receiver.Replace(" ", "").Replace("+47", "");
         IsPhoneNumber = !_receiver.Any(char.IsLetter);
     }
 
