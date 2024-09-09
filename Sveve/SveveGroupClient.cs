@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Security.Authentication;
 using System.Threading;
 using System.Threading.Tasks;
@@ -29,7 +30,7 @@ public sealed class SveveGroupClient
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     /// <exception cref="InvalidCredentialException">The username/password combination is invalid.</exception>
-    public Task CreateAsync(string group, CancellationToken cancellationToken = default) => SendAsync("add_group", new() { ["group"] = group }, cancellationToken);
+    public Task CreateAsync(string group, CancellationToken cancellationToken = default) => Command("add_group").AddParameter("group", group).SendAsync(cancellationToken);
 
     /// <summary>
     /// Moves all recipients from one <paramref name="fromGroup"/> to <paramref name="toGroup"/>.
@@ -43,14 +44,10 @@ public sealed class SveveGroupClient
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     /// <exception cref="InvalidCredentialException">The username/password combination is invalid.</exception>
-    public async Task MoveRecipientsAsync(string fromGroup, string toGroup, CancellationToken cancellationToken = default)
+    public Task MoveRecipientsAsync(string fromGroup, string toGroup, CancellationToken cancellationToken = default)
     {
-        var result = await MoveRecipientsCore(fromGroup, toGroup, cancellationToken).ConfigureAwait(false);
-        if (GroupDoesNotExist(result, toGroup))
-        {
-            await CreateAsync(toGroup, cancellationToken).ConfigureAwait(false);
-            await MoveRecipientsCore(fromGroup, toGroup, cancellationToken).ConfigureAwait(false);
-        }
+        var command = Command("move_group").AddParameter("group", fromGroup).AddParameter("new_group", toGroup);
+        return SendWithRequiredGroup(command, toGroup, cancellationToken);
     }
 
     /// <summary>
@@ -63,7 +60,7 @@ public sealed class SveveGroupClient
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     /// <exception cref="InvalidCredentialException">The username/password combination is invalid.</exception>
-    public Task DeleteAsync(string group, CancellationToken cancellationToken = default) => SendAsync("delete_group", new() { ["group"] = group }, cancellationToken);
+    public Task DeleteAsync(string group, CancellationToken cancellationToken = default) => Command("delete_group").AddParameter("group", group).SendAsync(cancellationToken);
 
     /// <summary>
     /// Lists the names of all groups.
@@ -72,7 +69,7 @@ public sealed class SveveGroupClient
     /// <returns></returns>
     public async Task<List<string>> ListAsync(CancellationToken cancellationToken = default)
     {
-        var result = await SendAsync("list_groups", [], cancellationToken).ConfigureAwait(false);
+        var result = await Command("list_groups").SendAsync(cancellationToken).ConfigureAwait(false);
         return result.Split('\n').Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
     }
 
@@ -85,7 +82,7 @@ public sealed class SveveGroupClient
     /// <exception cref="InvalidCredentialException">The username/password combination is invalid.</exception>
     public async Task<List<GroupRecipient>> ListRecipientsAsync(string group, CancellationToken cancellationToken = default)
     {
-        var result = await SendAsync("list_recipients", new() { ["group"] = group }, cancellationToken).ConfigureAwait(false);
+        var result = await Command("list_recipients").AddParameter("group", group).SendAsync(cancellationToken).ConfigureAwait(false);
         var lines = GroupDoesNotExist(result, group) ? [] : result.Split('\n');
         return lines.Where(x => !string.IsNullOrWhiteSpace(x)).Select(GroupRecipient.Parse).ToList();
     }
@@ -102,14 +99,10 @@ public sealed class SveveGroupClient
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     /// <exception cref="InvalidCredentialException">The username/password combination is invalid.</exception>
-    public async Task AddRecipientAsync(string group, string recipientName, string phoneNumber, CancellationToken cancellationToken = default)
+    public Task AddRecipientAsync(string group, string recipientName, string phoneNumber, CancellationToken cancellationToken = default)
     {
-        var result = await AddRecipientCore(group, recipientName, phoneNumber, cancellationToken).ConfigureAwait(false);
-        if (GroupDoesNotExist(result, group))
-        {
-            await CreateAsync(group, cancellationToken);
-            await AddRecipientCore(group, recipientName, phoneNumber, cancellationToken).ConfigureAwait(false);
-        }
+        var command = Command("add_recipient").AddParameter("group", group).AddParameter("name", recipientName).AddParameter("number", phoneNumber);
+        return SendWithRequiredGroup(command, group, cancellationToken);
     }
 
     /// <summary>
@@ -123,7 +116,7 @@ public sealed class SveveGroupClient
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     /// <exception cref="InvalidCredentialException">The username/password combination is invalid.</exception>
-    public Task RemoveRecipientAsync(string group, string phoneNumber, CancellationToken cancellationToken = default) => SendAsync("delete_recipient", new() { ["group"] = group, ["number"] = phoneNumber }, cancellationToken);
+    public Task RemoveRecipientAsync(string group, string phoneNumber, CancellationToken cancellationToken = default) => Command("delete_recipient").AddParameter("group", group).AddParameter("number", phoneNumber).SendAsync(cancellationToken);
 
     /// <summary>
     /// Moves a single recipient from one group to another.
@@ -138,20 +131,29 @@ public sealed class SveveGroupClient
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     /// <exception cref="InvalidCredentialException">The username/password combination is invalid.</exception>
-    public async Task MoveRecipientAsync(string fromGroup, string toGroup, string phoneNumber, CancellationToken cancellationToken = default)
+    public Task MoveRecipientAsync(string fromGroup, string toGroup, string phoneNumber, CancellationToken cancellationToken = default)
     {
-        var result = await MoveRecipientCore(fromGroup, toGroup, phoneNumber, cancellationToken).ConfigureAwait(false);
-        if (GroupDoesNotExist(result, toGroup))
-        {
-            await CreateAsync(toGroup, cancellationToken).ConfigureAwait(false);
-            await MoveRecipientCore(fromGroup, toGroup, phoneNumber, cancellationToken).ConfigureAwait(false);
-        }
+        var command = Command("move_recipient").AddParameter("group", fromGroup).AddParameter("new_group", toGroup).AddParameter("number", phoneNumber);
+        return SendWithRequiredGroup(command, toGroup, cancellationToken);
     }
 
     private static bool GroupDoesNotExist(string response, string group) => response.StartsWith($"Gruppen finnes ikke: {group}");
 
-    private Task<string> SendAsync(string command, Dictionary<string,string> parameters, CancellationToken cancellationToken) => _client.SendCommandAsync("SMS/RecipientAdm", command, parameters, cancellationToken);
-    private Task<string> MoveRecipientsCore(string fromGroup, string toGroup, CancellationToken cancellationToken) => SendAsync("move_group", new() { ["group"] = fromGroup, ["new_group"] = toGroup }, cancellationToken);
-    private Task<string> MoveRecipientCore(string fromGroup, string toGroup, string phoneNumber, CancellationToken cancellationToken) => SendAsync("move_recipient", new() { ["group"] = fromGroup, ["new_group"] = toGroup, ["number"] = phoneNumber }, cancellationToken);
-    private Task<string> AddRecipientCore(string group, string recipientName, string phoneNumber, CancellationToken cancellationToken) => SendAsync("add_recipient", new() { ["group"] = group, ["name"] = recipientName, ["number"] = phoneNumber }, cancellationToken);
+    /// <summary>
+    /// Sends a command which requires a group to exist.
+    /// </summary>
+    /// <remarks>
+    /// If the group does not exist, it will be created and the command will be sent again.
+    /// </remarks>
+    private async Task SendWithRequiredGroup(SveveCommandBuilder command, string requiredGroup, CancellationToken cancellationToken)
+    {
+        var result = await command.SendAsync(cancellationToken).ConfigureAwait(false);
+        if (GroupDoesNotExist(result, requiredGroup))
+        {
+            await CreateAsync(requiredGroup, cancellationToken).ConfigureAwait(false);
+            await command.SendAsync(cancellationToken).ConfigureAwait(false);
+        }
+    }
+
+    private SveveCommandBuilder Command(string command) => _client.Command("SMS/RecipientAdm", command);
 }
