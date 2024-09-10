@@ -5,6 +5,7 @@ namespace Sveve.Tests.Integration;
 public class SmsClientTests : IDisposable
 {
     private static readonly TestPerson PersonA = new("Line Danser", "99999999");
+    private static readonly TestPerson PersonB = new("Roland Gundersen", "44444444");
 
     private readonly SveveClient _client = new(new()
     {
@@ -80,6 +81,27 @@ public class SmsClientTests : IDisposable
         });
 
         await Assert.ThrowsAsync<InvalidCredentialException>(() => client.Sms.SendAsync(PersonA.PhoneNumber, "Dette er en test"));
+    }
+
+    [Fact]
+    public async Task SendAsync_LookupGroupMembers()
+    {
+        var groupName = $"test-group-{Guid.NewGuid()}";
+
+        try
+        {
+            await _client.Group.AddRecipientAsync(groupName, PersonB.Name, PersonB.PhoneNumber);
+            var withoutLookupGroupMembers = await _client.Sms.SendAsync($"{PersonA.PhoneNumber}, {groupName}", "Dette er en test");
+            Assert.True(withoutLookupGroupMembers.Count is 0);
+            
+            var withLookupGroupMembers = await _client.Sms.SendAsync($"{PersonA.PhoneNumber}, {groupName}", "Dette er en test", new SmsOptions { LookupGroupMembers = true });
+            Assert.True(withLookupGroupMembers.Count is 2);
+            Assert.All(withLookupGroupMembers, x => Assert.True(x.IsSentSuccessfully));
+        }
+        finally
+        {
+            await _client.Group.DeleteAsync(groupName);
+        }
     }
 
     public void Dispose()

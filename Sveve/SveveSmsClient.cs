@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
 using System.Security.Authentication;
@@ -44,6 +45,8 @@ public sealed class SveveSmsClient
         if (SmsReceiver.IsSinglePhoneNumber(mobilePhoneNUmber) is false)
             throw new ArgumentException($"{nameof(mobilePhoneNUmber)} must be a single mobile phone number.", nameof(mobilePhoneNUmber));
 
+        Debug.WriteIf(options?.LookupGroupMembers ?? false, "LookupGroupMembers is enabled. This has no effect when sending a single SMS to a phone number receiver and is probably a mistake.");
+
         var results = await SendAsync(mobilePhoneNUmber, message, options, cancellationToken).ConfigureAwait(false);
         var result = results.FirstOrDefault() ?? SmsResult.Failed(mobilePhoneNUmber, "Could not get a response");
 
@@ -74,10 +77,10 @@ public sealed class SveveSmsClient
         AddMessageProperties(properties, receivers, message);
         AddOptionsProperties(properties, options);
 
-        return await SendAsync(properties, receivers, cancellationToken).ConfigureAwait(false);
+        return await SendAsync(properties, receivers, options?.LookupGroupMembers ?? false, cancellationToken).ConfigureAwait(false);
     }
 
-    private async Task<List<SmsResult>> SendAsync(Dictionary<string, object> properties, string receiversAsString, CancellationToken cancellationToken = default)
+    private async Task<List<SmsResult>> SendAsync(Dictionary<string, object> properties, string receiversAsString, bool lookupGroupMembers, CancellationToken cancellationToken = default)
     {
         var httpResponse = await _client.HttpClient.PostAsync("SMS/SendMessage", CreateContent(properties), cancellationToken).ConfigureAwait(false);
         if (httpResponse.IsSuccessStatusCode is false)
@@ -95,6 +98,11 @@ public sealed class SveveSmsClient
             throw new SmsNotSentException(response.FatalError);
 
         var receivers = SmsReceiver.From(receiversAsString);
+
+        if (lookupGroupMembers)
+        {
+            await LookupGroupMembersAsync(receivers, cancellationToken).ConfigureAwait(false);
+        }
 
         return [
             ..AddFailedResults(receivers, response), 
@@ -122,6 +130,25 @@ public sealed class SveveSmsClient
             return [];
 
         return receivers.Zip(response.Ids ?? [], (receiver, messageId) => receiver.CreateOkResult(messageId, response.Test)).ToList();
+    }
+
+    private async Task LookupGroupMembersAsync(List<SmsReceiver> receivers, CancellationToken cancellationToken)
+    {
+        var receiversWithGroupMembers = new List<SmsReceiver>();
+        foreach (var receiver in receivers)
+        {
+            if (receiver.IsPhoneNumber)
+            {
+                receiversWithGroupMembers.Add(receiver);
+                continue;
+            }
+
+            var groupMembers = await _client.Group.ListRecipientsAsync(receiver.Receiver, cancellationToken).ConfigureAwait(false);
+            receiversWithGroupMembers.AddRange(groupMembers.Select(x => new SmsReceiver(x.PhoneNumber)));
+        }
+
+        receivers.Clear();
+        receivers.AddRange(receiversWithGroupMembers);
     }
 
     private static void AddMessageProperties(Dictionary<string, object> properties, string receiver, string sms)

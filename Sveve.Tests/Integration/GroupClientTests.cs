@@ -4,12 +4,12 @@ namespace Sveve.Tests.Integration;
 
 public class GroupClientTests : IAsyncLifetime
 {
-    private string GroupA = "test-group-" + Guid.NewGuid();
-    private string GroupB = "test-group-" + Guid.NewGuid();
-    private string GroupC = "test-group-" + Guid.NewGuid();
     private static readonly TestPerson PersonA = new("Line Danser", "99999999");
     private static readonly TestPerson PersonB = new("Roland Gundersen", "44444444");
 
+    private readonly string GroupA = "test-group-" + Guid.NewGuid();
+    private readonly string GroupB = "test-group-" + Guid.NewGuid();
+    private readonly string GroupC = "test-group-" + Guid.NewGuid();
     private readonly SveveClient _client = new(new()
     {
         Username = TestEnvironment.Configuration["SVEVE:USERNAME"]!,

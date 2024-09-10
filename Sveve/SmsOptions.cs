@@ -39,4 +39,14 @@ public class SmsOptions
     /// If <see langword="true"/>, the message is not actually sent to the receiver.
     /// </summary>
     public bool IsTest { get; set; }
+
+    /// <summary>
+    /// If <see langword="true"/>, the client will look up members and include successfull <see cref="SmsResult"/>s for messages sent to groups.
+    /// </summary>
+    /// <remarks>
+    /// When enabled, one additional API-request is made for each group in a receiver list. <br/>
+    /// Disabled by default to avoid unnecessary API-requests. <br/>
+    /// Only enable when you intend to use the <see cref="SmsResult"/>s for the group members.
+    /// </remarks>
+    public bool LookupGroupMembers { get; set; }
 }

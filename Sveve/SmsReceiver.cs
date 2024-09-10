@@ -15,6 +15,8 @@ internal class SmsReceiver
 
     public bool IsPhoneNumber { get; }
 
+    public string Receiver => _receiver;
+
     public bool IsReceiver(string receiver) => receiver.Contains(_receiver);
 
     public SmsResult CreateOkResult(int messageId, bool isTest) => SmsResult.Ok(_receiver, messageId, isTest);
