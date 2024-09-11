@@ -45,8 +45,6 @@ public sealed class SveveSmsClient
         if (SmsRecipient.IsSinglePhoneNumber(mobilePhoneNumber) is false)
             throw new ArgumentException($"{nameof(mobilePhoneNumber)} must be a single mobile phone number.", nameof(mobilePhoneNumber));
 
-        Debug.WriteIf(options?.LookupGroupMembers ?? false, "LookupGroupMembers is enabled. This has no effect when sending a single SMS to a phone number receiver and is probably a mistake.");
-
         var results = await SendAsync(mobilePhoneNumber, message, options, cancellationToken).ConfigureAwait(false);
         var result = results.FirstOrDefault() ?? SmsResult.Failed(mobilePhoneNumber, "Could not get a response");
 
