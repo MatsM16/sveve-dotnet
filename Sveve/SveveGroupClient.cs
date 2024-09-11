@@ -162,9 +162,9 @@ public sealed class SveveGroupClient
     /// <exception cref="InvalidCredentialException">The username/password combination is invalid.</exception>
     public async Task<bool> HasRecipientAsync(string group, string phoneNumber, CancellationToken cancellationToken = default)
     {
-        var normalized = new SmsReceiver(phoneNumber);
+        var normalized = new SmsRecipient(phoneNumber);
         var recipients = await ListRecipientsAsync(group, cancellationToken).ConfigureAwait(false);
-        return recipients.Any(x => normalized.IsReceiver(x.PhoneNumber));
+        return recipients.Select(x => new SmsRecipient(x.PhoneNumber)).Contains(normalized);
     }
 
     private static bool GroupDoesNotExist(string response, string group) => response.StartsWith($"Gruppen finnes ikke: {group}");

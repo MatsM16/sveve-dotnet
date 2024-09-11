@@ -63,7 +63,7 @@ public sealed class SmsResult
         if (string.IsNullOrWhiteSpace(phoneNumber))
             throw new ArgumentNullException(nameof(phoneNumber));
 
-        if (SmsReceiver.IsSinglePhoneNumber(phoneNumber) is false)
+        if (SmsRecipient.IsSinglePhoneNumber(phoneNumber) is false)
             throw new ArgumentException($"{nameof(SmsResult)} can only be created for exactly one phone number.");
 
         if (messageId <= 0)
@@ -81,7 +81,7 @@ public sealed class SmsResult
         if (string.IsNullOrWhiteSpace(phoneNumber))
             throw new ArgumentNullException(nameof(phoneNumber));
 
-        if (SmsReceiver.IsSinglePhoneNumber(phoneNumber) is false)
+        if (SmsRecipient.IsSinglePhoneNumber(phoneNumber) is false)
             throw new ArgumentException($"{nameof(SmsResult)} can only be created for exactly one phone number.");
 
         return new SmsResult(phoneNumber, null, error, isTest);
