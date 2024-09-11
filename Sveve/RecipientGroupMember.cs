@@ -3,11 +3,11 @@
 namespace Sveve;
 
 /// <summary>
-/// A recipient on a group.
+/// A member of a recipient group.
 /// </summary>
-public sealed class GroupRecipient
+public sealed class RecipientGroupMember
 {
-    internal GroupRecipient(string? name, string phoneNumber)
+    private RecipientGroupMember(string phoneNumber, string? name)
     {
         Name = name;
         PhoneNumber = phoneNumber;
@@ -23,12 +23,12 @@ public sealed class GroupRecipient
     /// </summary>
     public string PhoneNumber { get; }
 
-    internal static GroupRecipient Parse(string sveveFormattedRecipient)
+    internal static RecipientGroupMember Parse(string sveveFormattedRecipient)
     {
         if (sveveFormattedRecipient == null)
             throw new ArgumentNullException(nameof(sveveFormattedRecipient));
 
         var parts = sveveFormattedRecipient.Split(';');
-        return parts.Length == 1 ? new GroupRecipient(null, parts[0]) : new GroupRecipient(parts[0], parts[1]);
+        return parts.Length == 1 ? new RecipientGroupMember(parts[0], null) : new RecipientGroupMember(parts[1], parts[0]);
     }
 }
