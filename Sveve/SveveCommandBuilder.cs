@@ -4,7 +4,7 @@ using System.Text.Encodings.Web;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Sveve.Extensions;
+namespace Sveve;
 
 internal class SveveCommandBuilder
 {

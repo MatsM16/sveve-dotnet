@@ -148,7 +148,7 @@ public sealed class SveveGroupClient
     /// Returns <see langword="true"/> if the group has the recipient, otherwise <see langword="false"/>.
     /// </summary>
     /// <param name="group">Name of the group.</param>
-    /// <param name="phoneNumber">Phone number of the receipient.</param>
+    /// <param name="phoneNumber">Phone number of the recipient.</param>
     /// <param name="cancellationToken"></param>
     /// <exception cref="InvalidCredentialException">The username/password combination is invalid.</exception>
     public async Task<bool> HasRecipientAsync(string group, string phoneNumber, CancellationToken cancellationToken = default)
