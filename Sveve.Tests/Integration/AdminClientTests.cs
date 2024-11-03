@@ -18,7 +18,7 @@ public class AdminClientTests : IDisposable
         Assert.True(remainingSmsUnits > 0, "The configured account has no remaining SMS units");
     }
 
-    
+
     [Fact]
     public async Task ThrowsInvalidCredentialException()
     {
@@ -28,7 +28,7 @@ public class AdminClientTests : IDisposable
             Password = "invalid"
         });
 
-        await Assert.ThrowsAsync<InvalidCredentialException>(() => client.Admin.OrderSmsAsync(count: 500));
+        await Assert.ThrowsAsync<InvalidCredentialException>(() => client.Admin.OrderSmsAsync(SmsOrderSize.Bulk500));
         await Assert.ThrowsAsync<InvalidCredentialException>(() => client.Admin.RemainingSmsAsync());
     }
 
