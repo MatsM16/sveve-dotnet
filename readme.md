@@ -10,7 +10,9 @@ A dotnet client written in C# for the REST-APIs provided by [Sveve](https://svev
 - [Configure SMS sending](#configure-sms-sending)
 - [Manage recipient groups](#manage-recipient-groups)
 - [Manage account](#manage-account)
+- [Preview builds](#preview-builds)
 - [Get inspired](https://sveve.no/artikler/inspirasjon) (_Norwegian only_)
+- [Sveve API documentation](https://sveve.no/apidok/)
 
 ## Get started
 You can either create a `SveveClient` directly:
