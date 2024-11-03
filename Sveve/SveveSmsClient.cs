@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Security.Authentication;
 using System.Text;
@@ -81,6 +81,9 @@ public sealed class SveveSmsClient
     private async Task<List<SmsResult>> SendAsync(Dictionary<string, object> properties, string receiversAsString, bool lookupGroupMembers, CancellationToken cancellationToken = default)
     {
         var httpResponse = await _client.HttpClient.PostAsync("SMS/SendMessage", CreateContent(properties), cancellationToken).ConfigureAwait(false);
+        if (httpResponse.StatusCode == (HttpStatusCode)429)
+            throw new SmsNotSentException("Too many concurrent requests. Sveve only allows 5 concurrent API-requests.");
+
         if (httpResponse.IsSuccessStatusCode is false)
             throw new SmsNotSentException($"Failed to send SMS. Status code: {httpResponse.StatusCode}");
 
@@ -112,9 +115,9 @@ public sealed class SveveSmsClient
         var results = new List<SmsResult>();
         foreach (var error in response.Errors ?? [])
         {
-            var receipient = new SmsRecipient(error.Number ?? "not a number");
-            receivers.RemoveAll(receipient.Equals);
-            results.Add(SmsResult.Failed(receipient.ToString(), error.Message));
+            var recipient = new SmsRecipient(error.Number ?? "not a number");
+            receivers.RemoveAll(recipient.Equals);
+            results.Add(SmsResult.Failed(recipient.ToString(), error.Message));
         }
         return results;
     }
@@ -166,8 +169,8 @@ public sealed class SveveSmsClient
         else if (_client.Options.Sender is not null)
             properties.Add("from", _client.Options.Sender);
 
-        if (options.ReplyToMessageId is not null)
-            properties.Add("reply_id", options.ReplyToMessageId);
+        if (options.ConversationMessageId is not null)
+            properties.Add("reply_id", options.ConversationMessageId);
 
         if (options.IsReplyAllowed)
             properties.Add("reply", true);
