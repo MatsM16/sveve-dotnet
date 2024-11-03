@@ -15,12 +15,18 @@ public class SmsOptions
     /// <summary>
     /// The receiver can reply to this message.
     /// </summary>
+    /// <remarks>
+    /// If <see langword="true"/>, <see cref="Sender"/> is ignored and Sveve generates a random 14-digit phone number.
+    /// </remarks>
     public bool IsReplyAllowed { get; set; }
 
     /// <summary>
-    /// This message is a reply to the message with the given id.
+    /// ID of a message sent with <see cref="IsReplyAllowed"/>=<see langword="true"/>.
     /// </summary>
-    public string? ReplyToMessageId { get; set; }
+    /// <remarks>
+    /// This keeps the message in the same thread as the referenced message on the receivers phone.
+    /// </remarks>
+    public string? ConversationMessageId { get; set; }
 
     /// <inheritdoc cref="SendRepetition" />
     public SendRepetition? Repeat { get; set; } = SendRepetition.Never;
@@ -41,7 +47,7 @@ public class SmsOptions
     public bool IsTest { get; set; }
 
     /// <summary>
-    /// If <see langword="true"/>, the client will look up members and include successfull <see cref="SmsResult"/>s for messages sent to groups.
+    /// If <see langword="true"/>, the client will look up members and include successful <see cref="SmsResult"/>s for messages sent to groups.
     /// </summary>
     /// <remarks>
     /// When enabled, one additional API-request is made for each group in a receiver list. <br/>
