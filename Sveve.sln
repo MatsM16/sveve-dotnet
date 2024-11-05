@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sveve", "Sveve\Sveve.csproj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sveve.Tests", "Sveve.Tests\Sveve.Tests.csproj", "{12C98977-C5EE-4BDF-88F1-4D577ECEB1AE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sveve.Api", "Sveve.Api\Sveve.Api.csproj", "{9462B997-2283-44F5-A435-BD4EA88A14BC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sveve.AspNetCore", "Sveve.AspNetCore\Sveve.AspNetCore.csproj", "{9462B997-2283-44F5-A435-BD4EA88A14BC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

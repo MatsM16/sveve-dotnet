@@ -1,4 +1,4 @@
-﻿namespace Sveve.Api;
+﻿namespace Sveve.AspNetCore;
 
 /// <summary>
 /// The reason a SMS delivery failed.

@@ -27,6 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Sveve.AspNetCore\Sveve.AspNetCore.csproj" />
     <ProjectReference Include="..\Sveve\Sveve.csproj" />
   </ItemGroup>
 

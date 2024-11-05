@@ -1,4 +1,4 @@
-﻿namespace Sveve.Api;
+﻿namespace Sveve.AspNetCore;
 
 /// <summary>
 /// A SMS sent by you.
