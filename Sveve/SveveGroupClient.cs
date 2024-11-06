@@ -20,6 +20,9 @@ public sealed class SveveGroupClient
     /// <inheritdoc cref="SveveClient(SveveClientOptions)"/>
     public SveveGroupClient(SveveClientOptions options) : this(new SveveClient(options)) { }
 
+    /// <inheritdoc cref="SveveClient(string,string)"/>
+    public SveveGroupClient(string username, string password) : this(new SveveClient(username, password)) { }
+
     /// <summary>
     /// Creates a new group. 
     /// </summary>

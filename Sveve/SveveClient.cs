@@ -32,6 +32,11 @@ public class SveveClient : IDisposable
     }
 
     /// <summary>
+    /// Configures a new client for the Sveve API
+    /// </summary>
+    public SveveClient(string username, string password) : this(new SveveClientOptions { Username = username, Password = password }) { }
+
+    /// <summary>
     /// Validated options for the Sveve client.
     /// </summary>
     internal SveveClientOptions Options { get; }
