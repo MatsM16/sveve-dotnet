@@ -195,6 +195,27 @@ public class SveveConsumerTests
         Assert.Equal("ToNumber", consumer.ToDedicatedPhoneNumber.Message);
     }
 
+    [Fact]
+    public void AddConsumerExtensions()
+    {
+        new ServiceCollection()
+            .AddSveveDeliveryConsumer<TestConsumer>()
+            .BuildServiceProvider()
+            .GetRequiredService<ISveveDeliveryConsumer>();
+
+        new ServiceCollection()
+            .AddSveveSmsConsumer<TestConsumer>()
+            .BuildServiceProvider()
+            .GetRequiredService<ISveveSmsConsumer>();
+
+        var provider = new ServiceCollection()
+            .AddSveveConsumer<TestConsumer>()
+            .BuildServiceProvider();
+
+        provider.GetRequiredService<ISveveDeliveryConsumer>();
+        provider.GetRequiredService<ISveveSmsConsumer>();
+    }
+
     private static void AssertBadRequest(string partialMessage, IResult actualResult)
     {
         var badRequest = Assert.IsType<BadRequest<string>>(actualResult);
