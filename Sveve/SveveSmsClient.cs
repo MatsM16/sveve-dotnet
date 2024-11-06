@@ -23,10 +23,10 @@ public sealed class SveveSmsClient
         PropertyNameCaseInsensitive = true
     };
 
-    internal SveveSmsClient(SveveClient client)
-    {
-        _client = client;
-    }
+    internal SveveSmsClient(SveveClient client) => _client = client;
+
+    /// <inheritdoc cref="SveveClient(SveveClientOptions)"/>
+    public SveveSmsClient(SveveClientOptions options) : this(new SveveClient(options)) { }
 
     /// <summary>
     /// Sends a single SMS message to a single receiver.
