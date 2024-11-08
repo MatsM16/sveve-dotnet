@@ -9,6 +9,15 @@ namespace Sveve.Extensions;
 public static class SveveServiceCollectionExtensions
 {
     /// <inheritdoc cref="AddSveveClient(IServiceCollection, Func{IServiceProvider, SveveClientOptions})" />
+    /// <param name="services"></param>
+    /// <param name="username">Username to the Sveve API.</param>
+    /// <param name="password">Password to the Sveve API.</param>
+    public static IServiceCollection AddSveveClient(this IServiceCollection services, string username, string password)
+    {
+        return services.AddSveveClient(new SveveClientOptions { Username = username, Password = password });
+    }
+
+    /// <inheritdoc cref="AddSveveClient(IServiceCollection, Func{IServiceProvider, SveveClientOptions})" />
     /// <param name="options"></param>
     /// <param name="services"></param>
     public static IServiceCollection AddSveveClient(this IServiceCollection services, SveveClientOptions options)
