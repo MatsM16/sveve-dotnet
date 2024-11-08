@@ -185,6 +185,90 @@ if (smsCount < 500)
 }
 ```
 
+# Notifications from Sveve
+Sveve can send you delivery reports and notify you of incoming messages if you have an API.  
+Install the `Sveve.AspNetCore` NuGet package.
+
+Before you can receive any notifications:
+In `Program.cs` where you map your endpoints, make sure to also map the sveve consumer endpoint:
+```cs
+app.MapSveveConsumerEndpoint("/api/sveve");
+```
+You can choose the path yourself.
+Once you're done, copy the full URL to your Sveve endpoint and navigate to the [Sveve control panel](https://sveve.no/v2/api/innstillinger).
+Paste the full URL path into `Leveringsrapport` to receive delivery reports and into `Videresend svar på meldinger` to receive incoming messages.
+![Settings](./docs/settings01.png)
+## Delivery reports
+Delivery reports tells you if a SMS sent from your Sveve account was delivered or why it failed.  
+To consume delivery reports, first make a consumer class:
+```cs
+public class DeliveryReportConsumer(ILogger log) : ISveveDeliveryReportConsumer
+{
+    public Task SmsDelivered(
+        OutgoingSms sms, 
+        CancellationToken cancellationToken)
+    {
+        // Sms was delivered.
+        // If you set the SmsOptions.Reference when sending, 
+        // you can access that reference now:
+        log.LogInformation("SMS {sms_reference} delivered!", sms.Reference);
+        return Task.CompletedTask;
+    }
+    
+    public Task SmsFailed(
+        OutgoingSms sms,
+        SmsDeliveryError error,
+        CancellationToken cancellationToken)
+    {
+        // SMS was not delivered.
+        log.LogInformation(
+	        "SMS {sms_reference} failed because {error_message}",
+	        sms.Reference, error.Description);
+	    return Task.CompletedTask;
+    }
+}
+```
+
+The consumer is registered by calling
+```cs
+services.AddSveveDeliveryConsumer<DeliveryReportConsumer>();
+```
+
+## Incoming messages
+Make a class implementing `ISveveSmsConsumer`
+```cs
+public class SmsConsumer(GptAi gpt, SveveSmsClient sveve) : ISveveSmsConsumer
+{
+	public async Task SmsReceived(
+		IncomingSmsReply sms, 
+		CancellationToken cancellationToken)
+	{
+		var joke = await gpt.PromptAsync(
+			"You are a very funny comedian who loves the audience." +
+			"Make a joke about this: " + sms.Message);
+			
+		sveve.SendAsync(sms.SenderPhoneNumber, "Joke: " + joke);
+	}
+	
+	public Task SmsReceived(
+		IncomingSmsToCode sms,
+		CancellationToken cancellationToken)
+		=> Task.CompletedTask;
+	
+	public Task SmsReceived(
+		IncomingSmsToDedicatedPhoneNumber sms,
+		CancellationToken cancellationToken)
+		=> Task.CompletedTask;
+}
+```
+
+and register it like this:
+```cs
+services.AddSveveSmsConsumer<SmsConsumer>();
+```
+
+For both delivery report consumers and sms consumers, you can register as many consumers as you like. They will be called one at a time in the order they were registered.
+
 # Preview builds
 If you want the preview builds add the NuGet source: `https://nuget.pkg.github.com/MatsM16/index.json`.  
 It should be noted that these builds are considered unstable at best and non-functional at worst.  

@@ -12,10 +12,13 @@ public sealed class SveveAdminClient
 {
     private readonly SveveClient _client;
 
-    internal SveveAdminClient(SveveClient client)
-    {
-        _client = client;
-    }
+    internal SveveAdminClient(SveveClient client) => _client = client;
+
+    /// <inheritdoc cref="SveveClient(SveveClientOptions)" />
+    public SveveAdminClient(SveveClientOptions options) : this(new SveveClient(options)) { }
+
+    /// <inheritdoc cref="SveveClient(string,string)"/>
+    public SveveAdminClient(string username, string password) : this(new SveveClient(username, password)) { }
 
     /// <summary>
     /// Orders a given number of SMS units.

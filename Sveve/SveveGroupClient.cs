@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Security.Authentication;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,10 +15,13 @@ public sealed class SveveGroupClient
 {
     private readonly SveveClient _client;
 
-    internal SveveGroupClient(SveveClient client)
-    {
-        _client = client;
-    }
+    internal SveveGroupClient(SveveClient client) => _client = client;
+
+    /// <inheritdoc cref="SveveClient(SveveClientOptions)"/>
+    public SveveGroupClient(SveveClientOptions options) : this(new SveveClient(options)) { }
+
+    /// <inheritdoc cref="SveveClient(string,string)"/>
+    public SveveGroupClient(string username, string password) : this(new SveveClient(username, password)) { }
 
     /// <summary>
     /// Creates a new group. 
