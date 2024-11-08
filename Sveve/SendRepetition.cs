@@ -45,44 +45,56 @@ public sealed class SendRepetition
     /// <summary>
     /// Creates a new <see cref="SendRepetition"/> that repeats every <paramref name="hours"/> hours.
     /// </summary>
+    /// <remarks>
+    /// This repetition never stops. You probably want a stop condition.
+    /// </remarks>
     /// <param name="hours">Number of hours between each subsequent sms.</param>
     public static SendRepetition Hourly(int hours = 1) => new(hours, HourUnit);
 
     /// <summary>
     /// Creates a new <see cref="SendRepetition"/> that repeats every <paramref name="days"/> days.
     /// </summary>
+    /// <remarks>
+    /// This repetition never stops. You probably want a stop condition.
+    /// </remarks>
     /// <param name="days">Number of days between each subsequent sms.</param>
     public static SendRepetition Daily(int days = 1) => new (days, DayUnit);
 
     /// <summary>
     /// Creates a new <see cref="SendRepetition"/> that repeats every <paramref name="weeks"/> weeks.
     /// </summary>
+    /// <remarks>
+    /// This repetition never stops. You probably want a stop condition.
+    /// </remarks>
     /// <param name="weeks">Number of weeks between each subsequent sms.</param>
     public static SendRepetition Weekly(int weeks = 1) => new(weeks, WeekUnit);
 
     /// <summary>
     /// Creates a new <see cref="SendRepetition"/> that repeats every <paramref name="months"/> months.
     /// </summary>
+    /// <remarks>
+    /// This repetition never stops. You probably want a stop condition.
+    /// </remarks>
     /// <param name="months">Number of months between each subsequent sms.</param>
     public static SendRepetition Monthly(int months = 1) => new(months, MonthUnit);
 
     /// <summary>
-    /// Creates a new <see cref="SendRepetition"/> with the same frequency that stops after the given number of <paramref name="repeatedCount"/> times.
+    /// Creates a copy of this repetition that stops after the sms has been sent <paramref name="sendCount"/> times.
     /// </summary>
     /// <remarks>
-    /// This overrides existing endings.
+    /// This overrides existing stop-condition if any.
     /// </remarks>
-    /// <param name="repeatedCount">Number of times the messages will be sent.</param>
-    public SendRepetition EndsAfter(int repeatedCount) => new (_unit, _value, endsAfter: repeatedCount);
+    /// <param name="sendCount">Number of times the messages will be sent.</param>
+    public SendRepetition Times(int sendCount) => new (_unit, _value, endsAfter: sendCount);
 
     /// <summary>
-    /// Creates a new <see cref="SendRepetition"/> with the same frequency that stops after the given <paramref name="date"/>.
+    /// Creates a copy of this repetition that stops after the given <paramref name="date"/>.
     /// </summary>
     /// <remarks>
-    /// This overrides existing endings.
+    /// This overrides existing stop-condition if any.
     /// </remarks>
     /// <param name="date">Date after which the messages stops repeating.</param>
-    public SendRepetition EndsOn(DateTime date) => new(_unit, _value, endsOn: date);
+    public SendRepetition Until(DateTime date) => new(_unit, _value, endsOn: date);
 
     /// <summary>
     /// Returns the reoccurrence formatted like URL query parameters.
