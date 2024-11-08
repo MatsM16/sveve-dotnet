@@ -35,7 +35,7 @@ public static class SveveServiceExtensions
     /// <param name="pattern">Path to endpoint.</param>
     /// <returns>A <see cref="RouteHandlerBuilder"/> to configure the endpoint.</returns>
     public static RouteHandlerBuilder MapSveveConsumerEndpoint(this IEndpointRouteBuilder builder, string pattern) => builder
-        .MapPost(pattern, SveveConsumer.Endpoint)
+        .MapPost(pattern, SveveEndpoint.Endpoint)
         .AllowAnonymous()
         .WithGroupName("Sveve")
         .WithDisplayName("Consume Sveve notifications")

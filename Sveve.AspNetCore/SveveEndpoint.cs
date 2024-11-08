@@ -7,12 +7,12 @@ using System.Diagnostics;
 namespace Sveve.AspNetCore;
 
 /// <summary>
-/// Consumer for notifications from Sveve.
+/// Endpoint for consuming notifications from Sveve.
 /// </summary>
-public static class SveveConsumer
+public static class SveveEndpoint
 {
     /// <summary>
-    /// All activities created by <see cref="SveveConsumer"/> are prefixed <c>"Sveve"</c>. It is also the name of the activity source.
+    /// All activities created by <see cref="SveveEndpoint"/> are prefixed <c>"Sveve"</c>. It is also the name of the activity source.
     /// </summary>
     public const string ActivityNamePrefix = "Sveve";
     private static readonly ActivitySource ActivitySource = new (ActivityNamePrefix);
@@ -20,7 +20,7 @@ public static class SveveConsumer
     /// <summary>
     /// Endpoint handler for consuming Sveve notifications.
     /// </summary>
-    public static async Task<IResult> Endpoint(
+    internal static async Task<IResult> Endpoint(
         [FromServices] IServiceProvider services,
         [FromQuery] string number,
         [FromQuery] bool? status = null,
