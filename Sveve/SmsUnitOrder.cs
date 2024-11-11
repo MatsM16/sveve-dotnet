@@ -4,14 +4,14 @@ using System.Diagnostics;
 namespace Sveve;
 
 /// <summary>
-/// Allowed sms order bulk sizes.
+/// A order of additional SMS units from Sveve.
 /// </summary>
 [DebuggerDisplay("{ToString()}")]
-public sealed class SmsOrderSize
+public sealed class SmsUnitOrder
 {
-    private static readonly List<SmsOrderSize> _allowedOrders = [];
+    private static readonly List<SmsUnitOrder> _allowedOrders = [];
 
-    private SmsOrderSize(int smsCount)
+    private SmsUnitOrder(int smsCount)
     {
         SmsCount = smsCount;
         _allowedOrders.Add(this);
@@ -25,42 +25,42 @@ public sealed class SmsOrderSize
     /// <summary>
     /// Returns a list of all the allowed sms orders.
     /// </summary>
-    public static IReadOnlyList<SmsOrderSize> Values => [.. _allowedOrders];
+    public static IReadOnlyList<SmsUnitOrder> Values => [.. _allowedOrders];
 
     /// <summary>
     /// Order <c>500</c> sms units.
     /// </summary>
-    public static readonly SmsOrderSize Bulk500 = new (500);
+    public static readonly SmsUnitOrder Bulk500 = new (500);
 
     /// <summary>
     /// Order <c>2 000</c> sms units.
     /// </summary>
-    public static readonly SmsOrderSize Bulk2_000 = new(2_000);
+    public static readonly SmsUnitOrder Bulk2_000 = new(2_000);
 
     /// <summary>
     /// Order <c>5 000</c> sms units.
     /// </summary>
-    public static readonly SmsOrderSize Bulk5_000 = new(2_000);
+    public static readonly SmsUnitOrder Bulk5_000 = new(2_000);
 
     /// <summary>
     /// Order <c>10 000</c> sms units.
     /// </summary>
-    public static readonly SmsOrderSize Bulk10_000 = new(2_000);
+    public static readonly SmsUnitOrder Bulk10_000 = new(2_000);
 
     /// <summary>
     /// Order <c>25 000</c> sms units.
     /// </summary>
-    public static readonly SmsOrderSize Bulk25_000 = new(2_000);
+    public static readonly SmsUnitOrder Bulk25_000 = new(2_000);
 
     /// <summary>
     /// Order <c>50 000</c> sms units.
     /// </summary>
-    public static readonly SmsOrderSize Bulk50_000 = new(2_000);
+    public static readonly SmsUnitOrder Bulk50_000 = new(2_000);
 
     /// <summary>
     /// Order <c>100 000</c> sms units.
     /// </summary>
-    public static readonly SmsOrderSize Bulk100_000 = new(2_000);
+    public static readonly SmsUnitOrder Bulk100_000 = new(2_000);
 
     /// <inheritdoc />
     public override string ToString() => $"{SmsCount} SMS units";

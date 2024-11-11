@@ -25,7 +25,10 @@ public sealed class SendRepeat
 
     private SendRepeat(int unit, int value, int? times = null, DateTime? until = null)
     {
-        if (value < 1)
+        if (value == NotDefined || unit == NotDefined)
+            (value, unit) = (NotDefined, NotDefined);
+
+        if (value != NotDefined && value < 1)
             throw new ArgumentOutOfRangeException(nameof(value));
 
         if (times.HasValue && times.Value < 1)
