@@ -9,7 +9,6 @@ public class GroupTests : IAsyncLifetime
 
     private readonly string GroupA = "test-group-" + Guid.NewGuid();
     private readonly string GroupB = "test-group-" + Guid.NewGuid();
-    private readonly string GroupC = "test-group-" + Guid.NewGuid();
     private readonly SveveClient _client = new(new()
     {
         Username = TestEnvironment.Configuration["SVEVE:USERNAME"]!,
@@ -62,7 +61,7 @@ public class GroupTests : IAsyncLifetime
         var groupA = _client.Group(GroupA);
         await groupA.AddMemberAsync(PersonA.PhoneNumber, PersonA.Name);
         
-        await groupA.MoveToAsync(GroupA, GroupB);
+        await groupA.MoveToAsync(GroupB, PersonA.PhoneNumber);
 
         var groupB = _client.Group(GroupB);
         var recipientsInB = await groupB.MembersAsync();
@@ -155,7 +154,6 @@ public class GroupTests : IAsyncLifetime
     {
         await _client.Group(GroupA).DeleteAsync();
         await _client.Group(GroupB).DeleteAsync();
-        await _client.Group(GroupC).DeleteAsync();
         _client.Dispose();
     }
 

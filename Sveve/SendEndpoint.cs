@@ -172,7 +172,7 @@ internal sealed class SendEndpoint(SveveClient client)
             return new SendResponse(messageIds, errors, msgOkCount, stdSmsCount);
         }
 
-        var ids = idsProperty.EnumerateArray().Select(id => id.GetInt32()).ToList();
+        var ids = idsProperty.EnumerateArray().Select(id => id.GetInt32()).Where(id => id > 0).ToList();
 
         // All receivers are phone numbers.
         // If we ignore the phone numbers with errors, the ids property contains the message ids to successfully send messages in the order the phone numbers appeared.
