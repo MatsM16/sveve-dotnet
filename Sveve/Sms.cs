@@ -41,7 +41,7 @@ public sealed class Sms(string to, string text)
     /// <remarks>
     /// This keeps the message in the same thread as the referenced message on the receivers phone.
     /// </remarks>
-    public string? ReplyTo { get; set; }
+    public int? ReplyTo { get; set; }
 
     /// <inheritdoc cref="SendRepeat" />
     public SendRepeat? Repeat { get; set; } = SendRepeat.Never;

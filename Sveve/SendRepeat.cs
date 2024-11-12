@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Sveve.Send;
+using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -75,29 +75,25 @@ public sealed class SendRepeat
     /// <summary>
     /// Creates a new <see cref="SendRepeat"/> that repeats every <paramref name="months"/> months.
     /// </summary>
-    /// <remarks>
-    /// This repetition never stops. You probably want a stop condition.
-    /// </remarks>
     /// <param name="months">Number of months between each subsequent sms.</param>
     public static SendRepeat Monthly(int months = 1) => new(months, MonthUnit);
 
     /// <summary>
-    /// Creates a copy of this repetition that stops after the sms has been sent <paramref name="sendCount"/> times.
+    /// Returns a new repetition with the same frequency that stops after the sms has been sent <paramref name="sendCount"/> times.
     /// </summary>
-    /// <remarks>
-    /// This overrides existing stop-condition if any.
-    /// </remarks>
     /// <param name="sendCount">Number of times the messages will be sent.</param>
     public SendRepeat Times(int sendCount) => new (_unit, _value, times: sendCount);
 
     /// <summary>
-    /// Creates a copy of this repetition that stops after the given <paramref name="date"/>.
+    /// Returns a new repetition with the same frequency that stops after the given <paramref name="date"/>.
     /// </summary>
-    /// <remarks>
-    /// This overrides existing stop-condition if any.
-    /// </remarks>
     /// <param name="date">Date after which the messages stops repeating.</param>
     public SendRepeat Until(DateTime date) => new(_unit, _value, until: date);
+
+    /// <summary>
+    /// Returns a new repetition with the same frequency that never stops.
+    /// </summary>
+    public SendRepeat Forever() => new(_unit, _value);
 
     /// <summary>
     /// Returns a string representation of the repetition.
@@ -161,26 +157,26 @@ public sealed class SendRepeat
         return new SendRepeat(unit, value);
     }
 
-    internal void AddProperties(IDictionary<string, object?> properties)
+    internal void AddProperties(SmsDto dto)
     {
         if (_unit is NotDefined && _value is NotDefined)
             return;
 
-        properties["reoccurrence"] = $"{_value}|{_unit}";
+        dto.Reoccurrence = $"{_value}|{_unit}";
 
         if (_times.HasValue)
         {
-            properties["reoccurrence_ends"] = "after";
-            properties["ends_after"] = _times.Value;
+            dto.ReoccurrenceEnds = "after";
+            dto.EndsAfter = _times;
         }
         else if (_until.HasValue)
         {
-            properties["reoccurrence_ends"] = "on";
-            properties["ends_on"] = _until.Value.ToString("dd.MM.yyyy");
+            dto.ReoccurrenceEnds = "on";
+            dto.EndsOn = _until?.ToString("dd.MM.yyyy");
         }
         else
         {
-            properties["reoccurrence_ends"] = "never";
+            dto.ReoccurrenceEnds = "never";
         }
     }
 }
