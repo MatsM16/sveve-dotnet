@@ -7,10 +7,11 @@ A dotnet client written in C# for the REST-APIs provided by [Sveve](https://svev
 > [!note]
 > This is an unofficial library and not made by or supported by Sveve.
 
-In this repository houses two packages:
+In this repository houses two packages.  
+They can be used together or independently.  
 - [Sveve](#sveve) Send sms
-- [Sveve.AspNetCore](#sveve.aspnetcore) Receive messages and delivery reports from Sveve.
-The packages can be used together or independently.
+- [Sveve.AspNetCore](#sveve.aspnetcore) Receive messages and delivery reports from Sveve.  
+
 # Sveve
 Use the `Sveve` NuGet package to send SMS using the Sveve API.  
 ```cs
