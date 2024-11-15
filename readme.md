@@ -25,8 +25,8 @@ You can create a `SveveClient` manually like shown above, but if you have a `ISe
 ```cs
 services.AddSveveClient(new SveveClientOptions 
 {
-	Username = "username",
-	Password = "password"
+    Username = "username",
+    Password = "password"
 });
 ```
 This will automatically hook up dependencies like `ILogger` from your `IServiceProvider`.  
@@ -40,8 +40,8 @@ await client.SendAsync(new Sms("99999999", "Drink water!"));
 Sveve imposes a limit of `5` concurrent requests per account.  Therefore, sometimes, it is usefull to batch requests. To do this, simply call `SveveClient.SendAsync` with multiple messages:
 ```cs
 await client.SendAsync([
-	new Sms("44444444", "Drink water!"), 
-	new Sms("99999999", "You too!")]);
+    new Sms("44444444", "Drink water!"), 
+    new Sms("99999999", "You too!")]);
 ```
 
 ## Schedule
@@ -49,7 +49,7 @@ To schedule a sms for later sending, create a regular `Sms`, but specify the `Se
 ```cs
 var sms = new Sms("+47 949 49 494", "A friendly reminder to drink water")
 {
-	SendTime = DateTimeOffset.Now.AddDays(1);
+    SendTime = DateTimeOffset.Now.AddDays(1);
 };
 await client.SendAsync(sms);
 ```
@@ -80,7 +80,7 @@ To send a new sms that the receiver can reply to:
 ```cs
 await client.SendAsync(new Sms("444 44 444", "Hello, how are you?")
 {
-	ReplyAllowed = true
+    ReplyAllowed = true
 });
 ```
 When `ReplyAllowed` is `true` Sveve sends the sms from a randomly generated 14-digit phone number. This means that the display-senders configured in either `SveveClientOptions.Sender` or `Sms.Sender` are ignored.
@@ -90,7 +90,7 @@ To add more messages to the same thread on the receivers phone, keep the message
 // Send the first sms and keep the id.
 var response = await client.SendAsync(new Sms("444 44 444", "Hello, how are you?")
 {
-	ReplyAllowed = true
+    ReplyAllowed = true
 });
 
 // remember the sms id.
@@ -99,7 +99,7 @@ int messageId = response.MessageId("44  44444 4");
 // Send another sms to the same conversation/thread on the users phone.
 await client.SendAsync(new Sms("44444444", "Pleace don't ignore me :(")
 {
-	ReplyTo = messageId
+    ReplyTo = messageId
 });
 ```
 
@@ -110,9 +110,9 @@ Testing-mode can be done on two levels. On the whole client:
 ```cs
 var client = new SveveClient(new SveveClientOption
 {
-	Username = "username",
-	Password = "password",
-	Test = true
+    Username = "username",
+    Password = "password",
+    Test = true
 });
 ```
 And on each individual sms:
