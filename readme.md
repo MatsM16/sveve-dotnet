@@ -1,5 +1,4 @@
 # Sveve.Net
-
 ![Sveve logo](./docs/logo.svg)
 
 A dotnet client written in C# for the REST-APIs provided by [Sveve](https://sveve.no/).  
@@ -77,16 +76,19 @@ await client.SendAsync(sms);
 > Be careful very careful when making repetitions that never end.  
 
 ## Replies
-To send a new sms that the receiver can reply to:
 ```cs
 await client.SendAsync(new Sms("444 44 444", "Hello, how are you?")
 {
     ReplyAllowed = true
 });
 ```
-When `ReplyAllowed` is `true` Sveve sends the sms from a randomly generated 14-digit phone number. This means that the display-senders configured in either `SveveClientOptions.Sender` or `Sms.Sender` are ignored.
+This allows the receiver to reply to the sms.  
+To handle the replies, see [Sveve.AspNetCore](#sveve.aspnetcore).
 
-To add more messages to the same thread on the receivers phone, keep the message id:
+> [!note]
+> If `ReplyAllowed` is `true` Sveve sends the sms from a randomly generated 14-digit phone number. This means that the display-senders configured in either `SveveClientOptions.Sender` or `Sms.Sender` are ignored.
+
+If you have already sent a sms and want to send another to the same thread on the users phone:
 ```cs
 // Send the first sms and keep the id.
 var response = await client.SendAsync(new Sms("444 44 444", "Hello, how are you?")
@@ -106,6 +108,7 @@ await client.SendAsync(new Sms("44444444", "Pleace don't ignore me :(")
 
 When a user replies to your sms, Sveve can invoked a web-hook configured by you.  
 To receive messages, see [Sveve.AspNetCore](#sveve.aspnetcore).
+
 ## Testing
 Test-mode can be enabled for the entire client:
 ```cs
@@ -184,6 +187,7 @@ await client.PurchaseSmsUnitsAsync(SmsUnitOrder.Bulk500);
 
 > [!tip]
 > Bigger purchases cost you less per sms unit.
+
 ## Logs and metrics
 The client produces logs and metrics all of which are prefixed by `Sveve`.
 
@@ -195,7 +199,6 @@ While they work well together, you can use the `Sveve.AspNetCore` and the `Sveve
 Before you can start consuming notifications from Sveve, you need to set up a few things:  
 
 ## Configure your API
-
 In `Program.cs` register your consumers on the `IServiceCollection`. Consumers are registered using
 ```cs
 // Consume delivery reports
@@ -215,12 +218,9 @@ app.MapSveveConsumerEndpoint("api/sveve");
 ```
 
 > [!tip]
-> If Sveve sends a notification that you have no consumers for,  
+> If no consumers are registered for a notification or any consumer throws during handling,  
 > your API will return `500 Internal Server Error` and Sveve will try again later.
 
-> [!tip]
-> If any consumer throws an exception during handling of an exception,  
-> your API returns `500 Internal Server Error` and Sveve will try again later.
 
 ## Configure Sveve
 Once your API is configured to consume notifications from Sveve, you need to tell Sveve where to deliver the reports.  
@@ -231,6 +231,7 @@ Once there, add the consumer URL to all callbacks:
 
 > [!tip] 
 > You can also add the URL to callbacks for messages to dedicated phone numbers and code words.
+
 ## Delivery reports
 When a sms sent by you has been delivered or failed to deliver, Sveve will notify you and all the registered `ISveveDeliveryConsumer`s will be invoked with the appropriate callback.
 
@@ -239,37 +240,36 @@ When someone sends you a message, Sveve will notify you and all the registered `
 
 Here is an example sms consumer.  
 When a user replies to a sms, we reply to them with a joke made by some gpt model.
-
-```cc
+```cs
 class MyConsumer(GptModel gpt, SveveClient sveve) : ISveveSmsConsumer
 {
     public async Task SmsReceived(
-		IncomingSmsReply sms, 
-		CancellationToken cancellationToken)
-	{
-		var joke = await gpt.PromptAsync(
-			"You are a very funny comedian who loves to make people laugh." +
-			"Make a joke about this: " + sms.Message);
-			
-		var reply = new Sms(sms.SenderPhoneNumber, "Joke: " + joke)
-		{
-			// Ensure SMS is added to the same thread
-			// as the message the user replied to:
-		    ReplyTo = sms.MessageId
-		};
-		
-		await sveve.SendAsync(reply, cancellationToken);
-	}
-	
-	public Task SmsReceived(
-		IncomingSmsToCode sms,
-		CancellationToken cancellationToken)
-		=> Task.CompletedTask;
-	
-	public Task SmsReceived(
-		IncomingSmsToDedicatedPhoneNumber sms,
-		CancellationToken cancellationToken)
-		=> Task.CompletedTask;
+        IncomingSmsReply sms, 
+        CancellationToken cancellationToken)
+    {
+        var joke = await gpt.PromptAsync(
+            "You are a very funny comedian who loves to make people laugh." +
+            "Make a joke about this: " + sms.Message);
+            
+        var reply = new Sms(sms.SenderPhoneNumber, "Joke: " + joke)
+        {
+            // Ensure SMS is added to the same thread
+            // as the message the user replied to:
+            ReplyTo = sms.MessageId
+        };
+        
+        await sveve.SendAsync(reply, cancellationToken);
+    }
+    
+    public Task SmsReceived(
+        IncomingSmsToCode sms,
+        CancellationToken cancellationToken)
+        => Task.CompletedTask;
+    
+    public Task SmsReceived(
+        IncomingSmsToDedicatedPhoneNumber sms,
+        CancellationToken cancellationToken)
+        => Task.CompletedTask;
 }
 ```
 
