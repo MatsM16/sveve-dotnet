@@ -4,7 +4,7 @@
 
 A dotnet client written in C# for the REST-APIs provided by [Sveve](https://sveve.no/).  
 
-> [!note]
+> [!important]
 > This is an unofficial library and not made by or supported by Sveve.
 
 In this repository houses two packages.  
@@ -209,11 +209,11 @@ After the app has been build, you must also add the endpoint Sveve will call whe
 app.MapSveveConsumerEndpoint("api/sveve");
 ```
 
-> [!info]
+> [!tip]
 > If Sveve sends a notification that you have no consumers for,  
 > your API will return `500 Internal Server Error` and Sveve will try again later.
 
-> [!info]
+> [!tip]
 > If any consumer throws an exception during handling of an exception,  
 > your API returns `500 Internal Server Error` and Sveve will try again later.
 
@@ -224,7 +224,7 @@ Grab the **full URL** to your Sveve consumer endpoint and head over to [Sveve](h
 Once there, add the consumer URL to all callbacks:
 ![Sveve Dashboard](./docs/settings01.png)
 
-> [!info] 
+> [!tip] 
 > You can also add the URL to callbacks for messages to dedicated phone numbers and code words.
 ## Delivery reports
 When a sms sent by you has been delivered or failed to deliver, Sveve will notify you and all the registered `ISveveDeliveryConsumer`s will be invoked with the appropriate callback.
