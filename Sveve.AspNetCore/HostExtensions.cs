@@ -38,11 +38,9 @@ public static class HostExtensions
     /// <param name="pattern">Path to endpoint.</param>
     /// <returns>A <see cref="RouteHandlerBuilder"/> to configure the endpoint.</returns>
     public static RouteHandlerBuilder MapSveveConsumerEndpoint(this IEndpointRouteBuilder builder, string pattern) => builder
-        .MapPost(pattern, SveveEndpoint.Endpoint)
+        .Map(pattern, SveveEndpoint.Endpoint)
         .AllowAnonymous()
         .WithGroupName("Sveve")
         .WithDisplayName("Consume Sveve notifications")
         .WithDescription("This is a callback endpoint for notifications from Sveve. The endpoint accepts all notifications Sveve can produce. To get started, copy the full URL to this endpoint into every callback on https://sveve.no/apidok/lev (Delivery reports) and https://sveve.no/apidok/motta (Incoming messages)");
-
-
 }

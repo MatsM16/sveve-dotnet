@@ -9,7 +9,7 @@ A dotnet client written in C# for the REST-APIs provided by [Sveve](https://svev
 In this repository houses two packages.  
 They can be used together or independently.  
 - [Sveve](#sveve) Send sms
-- [Sveve.AspNetCore](#sveve.aspnetcore) Receive messages and delivery reports from Sveve.  
+- [Sveve.AspNetCore](#sveve.aspnetcore) Receive sms and delivery reports from Sveve  
 
 # Sveve
 Use the `Sveve` NuGet package to send SMS using the Sveve API.  
@@ -214,7 +214,7 @@ builder.Services.AddSveveConsumer<MyConsumer>();
 > [!tip]
 > You can add multiple consumers to the same notification.
 
-After the app has been build, you must also add the endpoint Sveve will call when delivering notifications:
+After the app has been build, add an endpoint Sveve can call with notifications:
 ```cs
 app.MapSveveConsumerEndpoint("api/sveve");
 ```
@@ -228,7 +228,8 @@ app.MapSveveConsumerEndpoint("api/sveve");
 Once your API is configured to consume notifications from Sveve, you need to tell Sveve where to deliver the reports.  
 
 Grab the **full URL** to your Sveve consumer endpoint and head over to [Sveve](https://sveve.no) and sign in.  
-Once there, add the consumer URL to all callbacks:
+Once there, add the consumer URL to all callbacks:  
+_The endpoint works for both GET and POST_  
 ![Sveve Dashboard](./docs/settings01.png)
 
 > [!tip] 
