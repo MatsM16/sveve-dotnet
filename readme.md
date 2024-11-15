@@ -208,7 +208,7 @@ builder.Services.AddSveveSmsConsumer<MySmsConsumer>();
 builder.Services.AddSveveConsumer<MyConsumer>();
 ```
 
-> [!tip]
+> [!note]
 > Consumers are transient by default.
 
 > [!tip]
