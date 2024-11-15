@@ -105,8 +105,6 @@ await client.SendAsync(new Sms("44444444", "Pleace don't ignore me :(")
     ReplyTo = messageId
 });
 ```
-
-When a user replies to your sms, Sveve can invoked a web-hook configured by you.  
 To receive messages, see [Sveve.AspNetCore](#sveve.aspnetcore).
 
 ## Testing
@@ -192,11 +190,10 @@ await client.PurchaseSmsUnitsAsync(SmsUnitOrder.Bulk500);
 The client produces logs and metrics all of which are prefixed by `Sveve`.
 
 # Sveve.AspNetCore
-If configured, Sveve will send you notifications when your messages are delivered, fail to deliver or when you receive an incoming sms.  
+Sveve can send you notifications when your messages are delivered, fail to deliver or you receive a message.  
 The `Sveve.AspNetCore` NuGet package helps you consume these notifications.  
-While they work well together, you can use the `Sveve.AspNetCore` and the `Sveve` packages independently.
 
-Before you can start consuming notifications from Sveve, you need to set up a few things:  
+To consume these notification, first configure your API, then configure Sveve.
 
 ## Configure your API
 In `Program.cs` register your consumers on the `IServiceCollection`. Consumers are registered using
@@ -210,7 +207,12 @@ builder.Services.AddSveveSmsConsumer<MySmsConsumer>();
 // Consume all Sveve notifications
 builder.Services.AddSveveConsumer<MyConsumer>();
 ```
-_Consumers are registered as transient by default_
+
+> [!tip]
+> Consumers are transient by default.
+
+> [!tip]
+> You can add multiple consumers to the same notification.
 
 After the app has been build, you must also add the endpoint Sveve will call when delivering notifications:
 ```cs
