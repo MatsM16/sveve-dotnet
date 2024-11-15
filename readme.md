@@ -32,7 +32,6 @@ services.AddSveveClient(new SveveClientOptions
 This will automatically hook up dependencies like `ILogger` from your `IServiceProvider`.  
 
 ## Send
-To send a sms, use `SveveClient.SendAsync`.
 ```cs
 await client.SendAsync(new Sms("99999999", "Drink water!"));
 ```
@@ -45,7 +44,6 @@ await client.SendAsync([
 ```
 
 ## Schedule
-To schedule a sms for later sending, create a regular `Sms`, but specify the `SendTime` property:
 ```cs
 var sms = new Sms("+47 949 49 494", "A friendly reminder to drink water")
 {
@@ -74,6 +72,9 @@ sms.Repeat = SendRepeat.Monthly().Until(DateTime.Now.AddYears(1));
 
 await client.SendAsync(sms);
 ```
+
+> [!caution]
+> Be careful very careful when making repetitions that never ends.  
 
 ## Replies
 To send a new sms that the receiver can reply to:
@@ -174,7 +175,7 @@ If you need more sms units, you can buy them in fixed size bulks like this:
 await client.PurchaseSmsUnitsAsync(SmsUnitOrder.Bulk500);
 ```
 
-> [!warning]
+> [!caution]
 > Calls to `PurchaseSmsUnitsAsync` will cost you real money billed to your account.
 
 > [!info]
