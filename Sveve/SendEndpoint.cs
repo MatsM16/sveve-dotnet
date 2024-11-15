@@ -69,7 +69,7 @@ internal sealed class SendEndpoint(SveveClient client)
                 To = sms.To,
                 Msg = sms.Text,
                 Reply = (sms.ReplyAllowed || sms.ReplyTo.HasValue) ? true : null,
-                From = sms.From ?? client.Options.Sender,
+                From = sms.Sender ?? client.Options.Sender,
                 ReplyTo = sms.ReplyTo,
                 DateTime = sms.SendTime?.ToString("yyyyMMddHHmm"),
                 Ref = sms.Reference

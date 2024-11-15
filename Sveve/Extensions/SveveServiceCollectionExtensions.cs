@@ -20,6 +20,9 @@ public static class SveveServiceCollectionExtensions
     /// <summary>
     /// Registers the <see cref="SveveClient"/> and required services.
     /// </summary>
+    /// <remarks>
+    /// Will use the <see cref="ILoggerFactory"/> from the <see cref="IServiceProvider"/> if configured.
+    /// </remarks>
     /// <param name="services"></param>
     /// <param name="optionsFactory"></param>
     /// <returns> <paramref name="services"/> </returns>

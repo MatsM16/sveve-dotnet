@@ -25,13 +25,13 @@ public sealed class Sms(string to, string text)
     /// <summary>
     /// Display name for sender of the sms.
     /// </summary>
-    public string? From { get; set; }
+    public string? Sender { get; set; }
 
     /// <summary>
     /// The receiver can reply to this message.
     /// </summary>
     /// <remarks>
-    /// If <see langword="true"/>, <see cref="From"/> is ignored and Sveve generates a random 14-digit phone number.
+    /// If <see langword="true"/>, <see cref="Sender"/> is ignored and Sveve generates a random 14-digit phone number.
     /// </remarks>
     public bool ReplyAllowed { get; set; }
 

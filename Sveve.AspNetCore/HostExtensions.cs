@@ -5,7 +5,10 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Sveve.AspNetCore;
 
-public static class SveveServiceExtensions
+/// <summary>
+/// Extensions for adding consumers and endpoints used to integrate with Sveve.
+/// </summary>
+public static class HostExtensions
 {
     /// <summary>
     /// Registers <typeparamref name="T"/> as a transient <see cref="ISveveDeliveryConsumer"/>.

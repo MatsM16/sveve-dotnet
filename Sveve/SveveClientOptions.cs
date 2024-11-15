@@ -24,7 +24,7 @@ public sealed class SveveClientOptions
     public bool Test { get; set; }
 
     /// <summary>
-    /// Optional sender name. Can be overridden by <see cref="Sms.From"/>.
+    /// Optional sender name. Can be overridden by <see cref="Sms.Sender"/>.
     /// </summary>
     public string? Sender { get; set; }
 
