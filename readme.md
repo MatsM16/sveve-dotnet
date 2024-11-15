@@ -74,7 +74,7 @@ await client.SendAsync(sms);
 ```
 
 > [!caution]
-> Be careful very careful when making repetitions that never ends.  
+> Be careful very careful when making repetitions that never end.  
 
 ## Replies
 To send a new sms that the receiver can reply to:
@@ -178,7 +178,7 @@ await client.PurchaseSmsUnitsAsync(SmsUnitOrder.Bulk500);
 > [!caution]
 > Calls to `PurchaseSmsUnitsAsync` will cost you real money billed to your account.
 
-> [!info]
+> [!tip]
 > Bigger purchases cost you less per sms unit.
 ## Logs and metrics
 The client produces logs and metrics all of which are prefixed by `Sveve`.
