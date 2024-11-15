@@ -107,7 +107,7 @@ await client.SendAsync(new Sms("44444444", "Pleace don't ignore me :(")
 When a user replies to your sms, Sveve can invoked a web-hook configured by you.  
 To receive messages, see [Sveve.AspNetCore](#sveve.aspnetcore).
 ## Testing
-Testing-mode can be done on two levels. On the whole client:
+Test-mode can be enabled for the entire client:
 ```cs
 var client = new SveveClient(new SveveClientOption
 {
@@ -116,15 +116,19 @@ var client = new SveveClient(new SveveClientOption
     Test = true
 });
 ```
-And on each individual sms:
+Or for a single sms:
 ```cs
 await client.SendAsync(new Sms("99999999", "Not actually sent") { Test = true });
 ```
+Test messages are sent to Sveve, but not delivered to the receiver.
 
-Messages sent in test mode are sent to the Sveve API, but not actually delivered to the end phone.
+> [!warning]
+> When sending messages in bulk, all messages must agree on `Sms.Test`.  
+> Otherwise an `ArgumentException` is thrown.
 
-When sending multiple messages in a bulk, an `ArgumentException` exception is thrown if the messages do not agree on the value of `Sms.Test`.   
-When `SveveClientOptions.Test` is `true`, all messages are sent in test mode regardless of `Sms.Test`.
+> [!note]
+> If `SveveClientOptions.Test` is `true`, `Sms.Test` is ignored.  
+> All messages become test messages.
 
 ## Groups
 Sveve allows you to manage named collections of recipients called groups.  
