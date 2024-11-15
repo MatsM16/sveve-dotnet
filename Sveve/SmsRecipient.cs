@@ -64,10 +64,6 @@ internal sealed class SmsRecipient
     /// </summary>
     public static List<SmsRecipient> Multiple(string recipients) => recipients?.Split(RecipientSeparator).Select(r => new SmsRecipient(r)).ToList() ?? throw new ArgumentNullException(nameof(recipients));
 
-    internal static bool IsSinglePhoneNumber(string recipient) => IsSingle(recipient) && IsPhoneNumberInternal(recipient);
-
-    private static bool IsSingle(string value) => value is not null && value.IndexOf(RecipientSeparator) == -1;
-
     internal static bool IsPhoneNumberInternal(string value) => !string.IsNullOrWhiteSpace(value) && value.All(c => c is '+' or ' ' || char.IsDigit(c));
 
     private static string NormalizedPhoneNumber(string value)

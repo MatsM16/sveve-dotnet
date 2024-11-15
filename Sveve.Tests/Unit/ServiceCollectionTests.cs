@@ -14,16 +14,13 @@ public class ServiceCollectionTests
         {
             Username = "username",
             Password = "password",
-            IsTest = true
+            Test = true
         });
 
         var provider = services.BuildServiceProvider();
 
         AssertSingleton<SveveClientOptions>(provider);
         AssertSingleton<SveveClient>(provider);
-        AssertSingleton<SveveSmsClient>(provider);
-        AssertSingleton<SveveAdminClient>(provider);
-        AssertSingleton<SveveGroupClient>(provider);
     }
 
     private static void AssertSingleton<TService>(IServiceProvider provider)
