@@ -22,7 +22,7 @@ public static class SveveEndpoint
     /// </summary>
     internal static async Task<IResult> Endpoint(
         [FromServices] IServiceProvider services,
-        [FromQuery] string number,
+        [FromQuery] string? number = null,
         [FromQuery] bool? status = null,
         [FromQuery] int? id = null,
         [FromQuery] string? msg = null,
