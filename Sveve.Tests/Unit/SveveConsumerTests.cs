@@ -1,7 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Sveve.AspNetCore;
+using System.Net;
 
 namespace Sveve.Tests.Unit;
 
@@ -214,6 +217,38 @@ public class SveveConsumerTests
 
         provider.GetRequiredService<ISveveDeliveryConsumer>();
         provider.GetRequiredService<ISveveSmsConsumer>();
+    }
+
+    [Theory]
+    [InlineData("", HttpStatusCode.BadRequest)]
+    [InlineData("number=11111111&status=true&id=1", HttpStatusCode.OK)]
+    [InlineData("number=11111111&status=false&id=1&errorCode=e1&errorDesc=Unknown%20error", HttpStatusCode.OK)]
+    [InlineData("number=11111111&msg=Hello%20world&prefix=abc123", HttpStatusCode.OK)]
+    [InlineData("number=11111111&msg=Hello%20world&shortnumber=1111", HttpStatusCode.OK)]
+    [InlineData("number=11111111&msg=Hello%20world&id=1", HttpStatusCode.OK)]
+    public async Task MapSveveConsumerEndpoint(string queryParameterString, HttpStatusCode status)
+    {
+        var builder = WebApplication.CreateBuilder();
+        builder.Services.AddSveveConsumer<NullConsumer>();
+        builder.WebHost.UseTestServer();
+        using var app = builder.Build();
+
+        // Ensure that this actually works.
+        app.MapSveveConsumerEndpoint("api/sveve");
+
+        await app.StartAsync();
+        using var client = app.GetTestClient();
+        using var response = await client.GetAsync("api/sveve?" + queryParameterString);
+        Assert.Equal(status, response.StatusCode);
+    }
+
+    class NullConsumer : ISveveDeliveryConsumer, ISveveSmsConsumer
+    {
+        public Task SmsDelivered(OutgoingSms sms, CancellationToken cancellationToken) => Task.CompletedTask;
+        public Task SmsFailed(OutgoingSms sms, SmsDeliveryError error, CancellationToken cancellationToken) => Task.CompletedTask;
+        public Task SmsReceived(IncomingSmsReply sms, CancellationToken cancellationToken) => Task.CompletedTask;
+        public Task SmsReceived(IncomingSmsToCode sms, CancellationToken cancellationToken) => Task.CompletedTask;
+        public Task SmsReceived(IncomingSmsToDedicatedPhoneNumber sms, CancellationToken cancellationToken) => Task.CompletedTask;
     }
 
     private static void AssertBadRequest(string partialMessage, IResult actualResult)
