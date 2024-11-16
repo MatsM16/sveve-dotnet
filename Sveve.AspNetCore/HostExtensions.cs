@@ -42,5 +42,8 @@ public static class HostExtensions
         .AllowAnonymous()
         .WithGroupName("Sveve")
         .WithDisplayName("Consume Sveve notifications")
-        .WithDescription("This is a callback endpoint for notifications from Sveve. The endpoint accepts all notifications Sveve can produce. To get started, copy the full URL to this endpoint into every callback on https://sveve.no/apidok/lev (Delivery reports) and https://sveve.no/apidok/motta (Incoming messages)");
+        .WithDescription(
+            "This is a callback endpoint for notifications from Sveve. " + 
+            "The endpoint accepts all notifications Sveve can produce. " + 
+            "To get started, copy the full URL to this endpoint into every callback on https://sveve.no/apidok/lev (Delivery reports) and https://sveve.no/apidok/motta (Incoming messages)");
 }
