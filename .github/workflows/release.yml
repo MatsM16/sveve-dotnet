@@ -9,7 +9,6 @@ on:
         description: 'The release version'
         required: true
         type: string
-        default: '1.0.0'
     
 jobs:
   release:
@@ -19,7 +18,7 @@ jobs:
 
     - name: Read version from release tag
       id: get_tag
-      run: echo ::set-output name=tag::${GITHUB_REF#refs/tags/v}
+      run: echo "tag=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
       if: github.event_name == 'release'
 
     - name: Setup .NET
@@ -40,4 +39,4 @@ jobs:
       run: dotnet pack --no-build --configuration Release --output ./artifacts --property:Version=${{ steps.get_tag.outputs.tag || inputs.version }}
 
     - name: Publish
-      run: dotnet nuget push ./artifacts/*.nupkg --api-key ${{ secrets.NUGET_TOKEN }} --source "https://api.nuget.org/v3/index.json"
+      run: dotnet nuget push ./artifacts/*.nupkg --api-key ${{ secrets.NUGET_TOKEN }} --source "https://api.nuget.org/v3/index.json" --skip-duplicate
