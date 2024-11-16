@@ -10,7 +10,7 @@
   <PropertyGroup>
     <PackageId>Sveve.AspNetCore</PackageId>
     <VersionPrefix>0.0.1</VersionPrefix>
-    <Description>Consume notifications from Sveve.</Description>
+    <Description>Consume Sveve notifications in a .Net API.</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Authors>Mats Dyrøy</Authors>
     <Copyright>Copyright © 2024 Mats Dyrøy</Copyright>

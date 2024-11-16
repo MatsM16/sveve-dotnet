@@ -30,19 +30,20 @@ services.AddSveveClient(new SveveClientOptions
 ```
 This will automatically hook up dependencies like `ILogger` from your `IServiceProvider`.  
 
-## Send
+## Send sms
 ```cs
 await client.SendAsync(new Sms("99999999", "Drink water!"));
 ```
 
-Sveve imposes a limit of `5` concurrent requests per account.  Therefore, sometimes, it is usefull to batch requests. To do this, simply call `SveveClient.SendAsync` with multiple messages:
+Sveve limits each account to `5` concurrent requests.  
+To send multiple messages in a single request, pass an `IEnumerable<Sms>` instead of a single `Sms` to `SendAsync`:
 ```cs
 await client.SendAsync([
     new Sms("44444444", "Drink water!"), 
     new Sms("99999999", "You too!")]);
 ```
 
-## Schedule
+## Schedule sms
 ```cs
 var sms = new Sms("+47 949 49 494", "A friendly reminder to drink water")
 {
@@ -51,7 +52,7 @@ var sms = new Sms("+47 949 49 494", "A friendly reminder to drink water")
 await client.SendAsync(sms);
 ```
 
-## Repeat
+## Repeat sms
 Sveve supports repeating messages, but be carefull with this one.  
 Use the `SendRepeat` class to specify a repetition:
 ```cs
@@ -73,7 +74,7 @@ await client.SendAsync(sms);
 ```
 
 > [!caution]
-> Be careful very careful when making repetitions that never end.  
+> Be very careful when making repetitions that never end.  
 
 ## Replies
 ```cs
@@ -108,7 +109,13 @@ await client.SendAsync(new Sms("44444444", "Pleace don't ignore me :(")
 To receive messages, see [Sveve.AspNetCore](#sveve.aspnetcore).
 
 ## Testing
-Test-mode can be enabled for the entire client:
+Test sms are sent to Sveve but not delivered to the receiver.
+
+Test-mode can be enabled for a single sms:
+```cs
+var sms = new Sms("99999999", "Not actually sent") { Test = true };
+```
+or for the entire `SveveClient`:
 ```cs
 var client = new SveveClient(new SveveClientOption
 {
@@ -117,12 +124,6 @@ var client = new SveveClient(new SveveClientOption
     Test = true
 });
 ```
-Or for a single sms:
-```cs
-await client.SendAsync(new Sms("99999999", "Not actually sent") { Test = true });
-```
-Test messages are sent to Sveve, but not delivered to the receiver.
-
 > [!warning]
 > When sending messages in bulk, all messages must agree on `Sms.Test`.  
 > Otherwise an `ArgumentException` is thrown.
@@ -135,12 +136,12 @@ Test messages are sent to Sveve, but not delivered to the receiver.
 Sveve allows you to manage named collections of recipients called groups.  
 All the groups on your account can be listed with
 ```cs
-var groupNames = await client.GroupsAsync();
+List<string> groupNames = await client.GroupsAsync();
 ```
 
 To work with an individual group, use 
 ```cs
-var group = client.Group("my-group");
+SveveGroup group = client.Group("my-group");
 
 // AddMemberAsync creates the group if it does not
 // already exist.
@@ -161,7 +162,7 @@ await group.DeleteAsync();
 ```
 or move all the members from the original group to another group.
 ```cs
-var myGroup = client.Group("my-group");
+SveveGroup myGroup = client.Group("my-group");
 
 // another-group is created if it does not already exist.
 await myGroup.MoveToAsync("another-group");
@@ -172,7 +173,7 @@ await myGroup.MoveToAsync("another-group");
 ## Admin
 To send messages from Sveve, you need sms units. Sms units are bought in advance. To check the remaining amount of sms units on your account call
 ```cs
-var remaining = await client.RemainingSmsUnitsAsync();
+int remaining = await client.RemainingSmsUnitsAsync();
 ```
 
 If you need more sms units, you can buy them in fixed size bulks like this:
@@ -237,6 +238,28 @@ _The endpoint works for both GET and POST_
 
 ## Delivery reports
 When a sms sent by you has been delivered or failed to deliver, Sveve will notify you and all the registered `ISveveDeliveryConsumer`s will be invoked with the appropriate callback.
+
+Here is an example delivery report consumer.  
+```cs
+class MyConsumer(ILogger logger) : ISveveDeliveryConsumer
+{
+    public Task SmsDelivered(
+        OutgoingSms sms, 
+        CancellationToken cancellationToken)
+        => Task.CompletedTask;
+
+    public Task SmsFailed(
+        OutgoingSms sms, 
+        SmsDeliveryError error, 
+        CancellationToken cancellationToken)
+    {
+        logger.LogWarning(
+            "Failed to deliver sms to {PhoneNumber}. Reason: {Reason}",
+            sms.ReceiverPhoneNumber, error.Description);
+        return Task.CompletedTask;
+    }
+}
+```
 
 ## Incoming messages
 When someone sends you a message, Sveve will notify you and all the registered `ISveveSmsConsumer`s will be invoked with the appropriate callback.
