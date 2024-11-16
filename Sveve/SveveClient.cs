@@ -1,5 +1,11 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using Sveve.Extensions;
+using System;
+using System.Collections.Generic;
 using System.Net.Http;
+using System.Security.Authentication;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Sveve;
 
@@ -8,6 +14,8 @@ namespace Sveve;
 /// </summary>
 public class SveveClient : IDisposable
 {
+    private readonly SendEndpoint _sendEndpoint;
+
     /// <summary>
     /// Validates the <paramref name="options"/> and configures a new client for the Sveve API.
     /// </summary>
@@ -23,17 +31,16 @@ public class SveveClient : IDisposable
         if (string.IsNullOrWhiteSpace(options.Password))
             throw new ArgumentNullException(nameof(options), $"{nameof(options)}.{nameof(SveveClientOptions.Password)} is required.");
 
+        Logger = options.LoggerFactory?.CreateLogger(nameof(SveveClient));
         Options = options;
         HttpClient = options.HttpClientFactory?.Invoke() ?? DefaultHttpClientFactory();
-
-        Group = new SveveGroupClient(this);
-        Admin = new SveveAdminClient(this);
-        Sms = new SveveSmsClient(this);
+        _sendEndpoint = new SendEndpoint(this);
     }
 
     /// <summary>
     /// Configures a new client for the Sveve API
     /// </summary>
+    /// <exception cref="ArgumentNullException"><paramref name="username"/> or <paramref name="password"/> is <see langword="null"/>.</exception>
     public SveveClient(string username, string password) : this(new SveveClientOptions { Username = username, Password = password }) { }
 
     /// <summary>
@@ -46,14 +53,13 @@ public class SveveClient : IDisposable
     /// </summary>
     internal HttpClient HttpClient { get; }
 
-    /// <inheritdoc cref="SveveGroupClient"/>
-    public SveveGroupClient Group { get; }
-
-    /// <inheritdoc cref="SveveAdminClient"/>
-    public SveveAdminClient Admin { get; }
-
-    /// <inheritdoc cref="SveveSmsClient"/>
-    public SveveSmsClient Sms { get; }
+    /// <summary>
+    /// A logger for this client.
+    /// </summary>
+    /// <remarks>
+    /// Can be null.
+    /// </remarks>
+    internal ILogger? Logger { get; }
 
     /// <inheritdoc />
     public void Dispose()
@@ -63,6 +69,69 @@ public class SveveClient : IDisposable
 
     private static HttpClient DefaultHttpClientFactory() => new()
     {
-        BaseAddress = new Uri("https://sveve.no/SMS")
+        BaseAddress = new Uri("https://sveve.no")
     };
+
+    /// <summary>
+    /// Buys additional SMS units.
+    /// </summary>
+    /// <remarks>
+    /// Invoking this method will place a real order which costs real money. <br/>
+    /// Buying larger quantities is cheaper per unit. <br/>
+    /// </remarks>
+    /// <exception cref="InvalidCredentialException">The username/password combination is invalid.</exception>
+    /// <exception cref="ObjectDisposedException">The client is disposed.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="order"/> is null.</exception>
+    public async Task PurchaseSmsUnitsAsync(SmsUnitOrder order, CancellationToken cancellationToken = default)
+    {
+        if (order is null) throw new ArgumentNullException(nameof(order));
+        await this.AdminCommand("order_sms").AddParameter("count", order.SmsCount.ToString()).InvokeAsync(cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Returns the number of SMS units remaining on the current Sveve account.
+    /// </summary>
+    /// <exception cref="InvalidCredentialException">The username/password combination is invalid.</exception>
+    /// <exception cref="ObjectDisposedException">The client is disposed.</exception>
+    public async Task<int> RemainingSmsUnitsAsync(CancellationToken cancellationToken = default) 
+        => int.Parse(await this.AdminCommand("sms_count").InvokeAsync(cancellationToken).ConfigureAwait(false));
+
+    /// <summary>
+    /// Returns the names of all the sms groups.
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <exception cref="InvalidCredentialException">The username/password combination is invalid.</exception>
+    /// <exception cref="ObjectDisposedException">The client is disposed.</exception>
+    public Task<List<string>> GroupsAsync(CancellationToken cancellationToken = default) => this.GroupCommand("list_groups").LinesAsync(cancellationToken);
+
+    /// <summary>
+    /// Returns a client for the given group.
+    /// </summary>
+    /// <param name="groupName">Name of the group.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="groupName"/> is <see langword="null"/>.</exception>
+    public SveveGroup Group(string groupName)
+    {
+        if (string.IsNullOrWhiteSpace(groupName))
+            throw new ArgumentNullException(nameof(groupName));
+        return new(this, groupName);
+    }
+
+    /// <summary>
+    /// Sends a sms request to Sveve.
+    /// </summary>
+    /// <exception cref="InvalidCredentialException">The username/password combination is invalid.</exception>
+    /// <exception cref="SmsNotSentException">Failed to send the SMS request.</exception>
+    /// <exception cref="ObjectDisposedException">The client is disposed.</exception>
+    public Task<SendResponse> SendAsync(Sms sms, CancellationToken cancellationToken = default) => _sendEndpoint.SendAsync(sms, cancellationToken);
+
+    /// <summary>
+    /// Bulks and sends a sms request to Sveve.
+    /// </summary>
+    /// <remarks>
+    /// The bulk is sent as a single request. This can be useful if the limit of 5 concurrent API requests becomes an issue.
+    /// </remarks>
+    /// <exception cref="InvalidCredentialException">The username/password combination is invalid.</exception>
+    /// <exception cref="SmsNotSentException">Failed to send the SMS request.</exception>
+    /// <exception cref="ObjectDisposedException">The client is disposed.</exception>
+    public Task<SendResponse> SendAsync(IEnumerable<Sms> bulk, CancellationToken cancellationToken = default) => _sendEndpoint.SendAsync(bulk, cancellationToken);
 }
