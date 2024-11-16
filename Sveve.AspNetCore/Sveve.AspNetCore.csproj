@@ -10,7 +10,7 @@
   <PropertyGroup>
     <PackageId>Sveve.AspNetCore</PackageId>
     <VersionPrefix>0.0.1</VersionPrefix>
-    <Description>Consume incoming sms and delivery reports from Sveve in a .Net API</Description>
+    <Description>Receive sms and delivery reports from Sveve in a .NET API</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Authors>Mats Dyrøy</Authors>
     <Copyright>Copyright © 2024 Mats Dyrøy</Copyright>

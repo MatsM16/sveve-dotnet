@@ -3,25 +3,41 @@ name: Release
 on:
   release:
     types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'The release version'
+        required: true
+        type: string
+        default: '1.0.0'
     
 jobs:
   release:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v4
+
+    - name: Read version from release tag
+      id: get_tag
+      run: echo ::set-output name=tag::${GITHUB_REF#refs/tags/v}
+      if: github.event_name == 'release'
+
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 8.0.x
+        dotnet-version: 9.0.x
+
     - name: Restore dependencies
       run: dotnet restore
+
     - name: Build
-      run: dotnet build --no-restore --configuration Release
+      run: dotnet build --no-restore --configuration Release --property:Version=${{ steps.get_tag.outputs.tag || inputs.version }}
+
     - name: Test
       run: dotnet test --no-build --configuration Release --verbosity normal --environment "SVEVE:USERNAME=${{ secrets.SVEVE_USERNAME }}" --environment "SVEVE:PASSWORD=${{ secrets.SVEVE_PASSWORD }}"
+
     - name: Pack
-      run: dotnet pack --no-build --configuration Release --output ./artifacts
+      run: dotnet pack --no-build --configuration Release --output ./artifacts --property:Version=${{ steps.get_tag.outputs.tag || inputs.version }}
+
     - name: Publish
       run: dotnet nuget push ./artifacts/*.nupkg --api-key ${{ secrets.NUGET_TOKEN }} --source "https://api.nuget.org/v3/index.json"

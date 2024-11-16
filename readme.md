@@ -1,34 +1,26 @@
-# Sveve.Net
 ![Sveve logo](./docs/logo.svg)
 
 > [!important]
 > This is unofficial packages and not made by or supported by Sveve.
 
 In this repository houses two packages.  
-- [Sveve](#sveve) Send sms through the Sveve REST API.
-- [Sveve.AspNetCore](#sveve.aspnetcore) Consume incoming sms and delivery reports from Sveve in a .Net API.  
-
-> [!tip]
-> `Sveve` and `Sveve.AspNetCore` can be used together or independently
-
-> [!note]
-> You need a Sveve account with the API enabled to use these packages.
+- [Sveve](#sveve) A .NET client for the Sveve sms REST API.
+- [Sveve.AspNetCore](#sveve.aspnetcore) Receive sms and delivery reports from Sveve in a .NET API.  
 
 # Sveve
-The `Sveve` NuGet package is built on `.Net Standard 2.0` and can therefore be used in almost all .Net environments.  
-To install `Sveve`, add the NuGet package to your project
-```
-dotnet add package Sveve
-```
+The `Sveve` package contains a client for the Sveve REST API.  
+It is built on `netstandard2.0` and therefore supports most .NET environments.
 
-Use the `SveveClient` to send sms:  
+## SveveClient
+While you can create a `SveveClient` using the constructor:
 ```cs
-var client = new SveveClient("username", "password");
-await client.SendAsync(new Sms("99999999", "Drink some water!"));
+var client = new SveveClient(new SveveClientOptions
+{
+    Username = "username",
+    Password = "password"
+});
 ```
-
-## ServiceCollection
-You can create a `SveveClient` manually like shown above, but if you have a `IServiceCollection` available, it's recommended to use the extensions methods for that instead.
+prefer using the `IServiceCollection` extension:
 ```cs
 services.AddSveveClient(new SveveClientOptions 
 {
@@ -36,7 +28,7 @@ services.AddSveveClient(new SveveClientOptions
     Password = "password"
 });
 ```
-This will automatically hook up dependencies like `ILogger` from your `IServiceProvider`.  
+The extension method automatically hooks up dependencies like logging from your `IServiceProvider`.  
 
 ## Send sms
 ```cs
@@ -199,13 +191,9 @@ await client.PurchaseSmsUnitsAsync(SmsUnitOrder.Bulk500);
 The client produces logs and metrics all of which are prefixed by `Sveve`.
 
 # Sveve.AspNetCore
-The `Sveve.AspNetCore` NuGet package helps you consume incoming sms and delivery reports from Sveve in a .Net API.  
-To install, add a reference to the NuGet package
-```
-dotnet add package Sveve.AspNetCore
-``` 
+The `Sveve.AspNetCore` package contains everything you need to receive incoming sms and delivery reports from Sveve in a .NET API.
 
-To start consuming sms and reports, first configure your API, then configure Sveve.
+To receive sms and reports, first configure your API, then configure Sveve.
 
 ## Configure your API
 In `Program.cs` register your consumers on the `IServiceCollection`. Consumers are registered using
@@ -313,13 +301,3 @@ class MyConsumer(GptModel gpt, SveveClient sveve) : ISveveSmsConsumer
 
 ## Logs and metrics
 The consumers produces logs and metrics all of which are prefixed by `Sveve`.
-
-# Contributing
-I am a full-time developer and a part-time student so contributions are most welcome.  
-I strongly encourage you to make early pull-requests for more feedback.
-
-# Preview builds
-Are you really sure about this?  
-To access the preview builds of the packages, add the NuGet source `https://nuget.pkg.github.com/MatsM16/index.json`.  
-But before you do, please stop and consider the implications to your sanity.  
-The preview versions are built at every push to `main` and are considered unstable at best.  

@@ -9,7 +9,7 @@
   <PropertyGroup>
     <PackageId>Sveve</PackageId>
     <VersionPrefix>0.0.1</VersionPrefix>
-    <Description>Send sms through the Sveve REST API</Description>
+    <Description>A .NET client for the Sveve sms REST API</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Authors>Mats Dyrøy</Authors>
     <Copyright>Copyright © 2024 Mats Dyrøy</Copyright>
