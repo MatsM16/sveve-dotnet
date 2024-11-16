@@ -10,14 +10,13 @@
   <PropertyGroup>
     <PackageId>Sveve.AspNetCore</PackageId>
     <VersionPrefix>0.0.1</VersionPrefix>
-    <Description>Consume Sveve notifications in a .Net API.</Description>
+    <Description>Consume incoming sms and delivery reports from Sveve in a .Net API</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Authors>Mats Dyrøy</Authors>
     <Copyright>Copyright © 2024 Mats Dyrøy</Copyright>
     <RepositoryUrl>https://github.com/MatsM16/sveve-dotnet.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>sveve; sms</PackageTags>
-    <PackageIcon>icon.png</PackageIcon>
 	<PackageIconUrl>https://raw.githubusercontent.com/MatsM16/sveve-dotnet/refs/heads/main/docs/icon.png</PackageIconUrl>
     <PackageReadmeFile>readme.md</PackageReadmeFile>
     <PackageLicenseFile>license.txt</PackageLicenseFile>
@@ -26,7 +25,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="../docs/icon.png" Pack="true" PackagePath="" />
     <None Include="../readme.md" Pack="true" PackagePath="" />
     <None Include="../license.txt" Pack="true" PackagePath="" />
   </ItemGroup>

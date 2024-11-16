@@ -1,23 +1,31 @@
 # Sveve.Net
 ![Sveve logo](./docs/logo.svg)
 
-A dotnet client written in C# for the REST-APIs provided by [Sveve](https://sveve.no/).  
-
 > [!important]
-> This is an unofficial library and not made by or supported by Sveve.
+> This is unofficial packages and not made by or supported by Sveve.
 
 In this repository houses two packages.  
-They can be used together or independently.  
-- [Sveve](#sveve) Send sms
-- [Sveve.AspNetCore](#sveve.aspnetcore) Receive sms and delivery reports from Sveve  
+- [Sveve](#sveve) Send sms through the Sveve REST API.
+- [Sveve.AspNetCore](#sveve.aspnetcore) Consume incoming sms and delivery reports from Sveve in a .Net API.  
+
+> [!tip]
+> `Sveve` and `Sveve.AspNetCore` can be used together or independently
+
+> [!note]
+> You need a Sveve account with the API enabled to use these packages.
 
 # Sveve
-Use the `Sveve` NuGet package to send SMS using the Sveve API.  
+The `Sveve` NuGet package is built on `.Net Standard 2.0` and can therefore be used in almost all .Net environments.  
+To install `Sveve`, add the NuGet package to your project
+```
+dotnet add package Sveve
+```
+
+Use the `SveveClient` to send sms:  
 ```cs
 var client = new SveveClient("username", "password");
 await client.SendAsync(new Sms("99999999", "Drink some water!"));
 ```
-Naturally, you need an account at Sveve.
 
 ## ServiceCollection
 You can create a `SveveClient` manually like shown above, but if you have a `IServiceCollection` available, it's recommended to use the extensions methods for that instead.
@@ -53,7 +61,7 @@ await client.SendAsync(sms);
 ```
 
 ## Repeat sms
-Sveve supports repeating messages, but be carefull with this one.  
+Sveve supports repeating messages, but be careful with this one.  
 Use the `SendRepeat` class to specify a repetition:
 ```cs
 var sms = new Sms("+47 999 99 999", "Am I annoying now?");
@@ -191,10 +199,13 @@ await client.PurchaseSmsUnitsAsync(SmsUnitOrder.Bulk500);
 The client produces logs and metrics all of which are prefixed by `Sveve`.
 
 # Sveve.AspNetCore
-Sveve can send you notifications when your messages are delivered, fail to deliver or you receive a message.  
-The `Sveve.AspNetCore` NuGet package helps you consume these notifications.  
+The `Sveve.AspNetCore` NuGet package helps you consume incoming sms and delivery reports from Sveve in a .Net API.  
+To install, add a reference to the NuGet package
+```
+dotnet add package Sveve.AspNetCore
+``` 
 
-To consume these notification, first configure your API, then configure Sveve.
+To start consuming sms and reports, first configure your API, then configure Sveve.
 
 ## Configure your API
 In `Program.cs` register your consumers on the `IServiceCollection`. Consumers are registered using
