@@ -18,6 +18,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageTags>sveve; sms</PackageTags>
     <PackageIcon>icon.png</PackageIcon>
+	<PackageIconUrl>https://raw.githubusercontent.com/MatsM16/sveve-dotnet/refs/heads/main/docs/icon.png</PackageIconUrl>
     <PackageReadmeFile>readme.md</PackageReadmeFile>
     <PackageLicenseFile>license.txt</PackageLicenseFile>
     <PackageProjectUrl>https://sveve.no/</PackageProjectUrl>
