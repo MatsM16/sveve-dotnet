@@ -57,21 +57,21 @@ public class SveveConsumerTests
     public async Task DetectDeliveryReport()
     {
         var services = new ServiceCollection().AddSveveConsumer<TestConsumer>().BuildServiceProvider();
-        AssertOk("Delivery report accepted", await SveveEndpoint.Endpoint(services, Number, status: true, id: 1, refParam: null));
-        AssertOk("Delivery report accepted", await SveveEndpoint.Endpoint(services, Number, status: true, id: 1, refParam: ""));
-        AssertOk("Delivery report accepted", await SveveEndpoint.Endpoint(services, Number, status: true, id: 1, refParam: " "));
-        AssertOk("Delivery report accepted", await SveveEndpoint.Endpoint(services, Number, status: true, id: 1, refParam: "\t"));
-        AssertOk("Delivery report accepted", await SveveEndpoint.Endpoint(services, Number, status: true, id: 1, refParam: "Hello"));
+        AssertOk("Accepted delivery_report", await SveveEndpoint.Endpoint(services, Number, status: true, id: 1, refParam: null));
+        AssertOk("Accepted delivery_report", await SveveEndpoint.Endpoint(services, Number, status: true, id: 1, refParam: ""));
+        AssertOk("Accepted delivery_report", await SveveEndpoint.Endpoint(services, Number, status: true, id: 1, refParam: " "));
+        AssertOk("Accepted delivery_report", await SveveEndpoint.Endpoint(services, Number, status: true, id: 1, refParam: "\t"));
+        AssertOk("Accepted delivery_report", await SveveEndpoint.Endpoint(services, Number, status: true, id: 1, refParam: "Hello"));
 
-        AssertOk("Delivery report accepted", await SveveEndpoint.Endpoint(services, Number, status: false, id: 1, refParam: null));
-        AssertOk("Delivery report accepted", await SveveEndpoint.Endpoint(services, Number, status: false, id: 1, refParam: ""));
-        AssertOk("Delivery report accepted", await SveveEndpoint.Endpoint(services, Number, status: false, id: 1, refParam: " "));
-        AssertOk("Delivery report accepted", await SveveEndpoint.Endpoint(services, Number, status: false, id: 1, refParam: "\t"));
-        AssertOk("Delivery report accepted", await SveveEndpoint.Endpoint(services, Number, status: false, id: 1, refParam: "Hello"));
+        AssertOk("Accepted delivery_report", await SveveEndpoint.Endpoint(services, Number, status: false, id: 1, refParam: null));
+        AssertOk("Accepted delivery_report", await SveveEndpoint.Endpoint(services, Number, status: false, id: 1, refParam: ""));
+        AssertOk("Accepted delivery_report", await SveveEndpoint.Endpoint(services, Number, status: false, id: 1, refParam: " "));
+        AssertOk("Accepted delivery_report", await SveveEndpoint.Endpoint(services, Number, status: false, id: 1, refParam: "\t"));
+        AssertOk("Accepted delivery_report", await SveveEndpoint.Endpoint(services, Number, status: false, id: 1, refParam: "Hello"));
 
-        AssertOk("Delivery report accepted", await SveveEndpoint.Endpoint(services, Number, status: false, id: 1, errorCode: "ABC123", errorDesc: null));
-        AssertOk("Delivery report accepted", await SveveEndpoint.Endpoint(services, Number, status: false, id: 1, errorCode: null, errorDesc: "ABC123"));
-        AssertOk("Delivery report accepted", await SveveEndpoint.Endpoint(services, Number, status: false, id: 1, errorCode: "ABC123", errorDesc: "ABC123"));
+        AssertOk("Accepted delivery_report", await SveveEndpoint.Endpoint(services, Number, status: false, id: 1, errorCode: "ABC123", errorDesc: null));
+        AssertOk("Accepted delivery_report", await SveveEndpoint.Endpoint(services, Number, status: false, id: 1, errorCode: null, errorDesc: "ABC123"));
+        AssertOk("Accepted delivery_report", await SveveEndpoint.Endpoint(services, Number, status: false, id: 1, errorCode: "ABC123", errorDesc: "ABC123"));
     }
 
     [Fact]
@@ -86,8 +86,8 @@ public class SveveConsumerTests
     public async Task DetectMissingSmsConsumer ()
     {
         var services = new ServiceCollection().BuildServiceProvider();
-        AssertInternalServerError(await SveveEndpoint.Endpoint(services, Number, msg: Msg, shortnumber:"1234"));
-        AssertInternalServerError(await SveveEndpoint.Endpoint(services, Number, msg: Msg, prefix:"1234"));
+        AssertInternalServerError(await SveveEndpoint.Endpoint(services, Number, msg: Msg, shortnumber: "27333"));
+        AssertInternalServerError(await SveveEndpoint.Endpoint(services, Number, msg: Msg, shortnumber: "27333", prefix:"BALL"));
         AssertInternalServerError(await SveveEndpoint.Endpoint(services, Number, msg: Msg, id:1));
     }
 
@@ -95,21 +95,21 @@ public class SveveConsumerTests
     public async Task DetectSmsToDedicatedPhoneNumber()
     {
         var services = new ServiceCollection().AddSveveConsumer<TestConsumer>().BuildServiceProvider();
-        AssertOk("dedicated phone number", await SveveEndpoint.Endpoint(services, Number, msg:Msg, shortnumber:"1234"));
+        AssertOk("Accepted incoming_sms", await SveveEndpoint.Endpoint(services, Number, msg:Msg, shortnumber: "27333"));
     }
 
     [Fact]
     public async Task DetectSmsToCodeWord()
     {
         var services = new ServiceCollection().AddSveveConsumer<TestConsumer>().BuildServiceProvider();
-        AssertOk("code word", await SveveEndpoint.Endpoint(services, Number, msg: Msg, prefix: "AWESOME"));
+        AssertOk("Accepted incoming_sms", await SveveEndpoint.Endpoint(services, Number, msg: Msg, shortnumber: "27333", prefix: "AWESOME"));
     }
 
     [Fact]
     public async Task DetectSmsToReply()
     {
         var services = new ServiceCollection().AddSveveConsumer<TestConsumer>().BuildServiceProvider();
-        AssertOk("Reply", await SveveEndpoint.Endpoint(services, Number, msg: Msg, id:1));
+        AssertOk("Accepted incoming_sms", await SveveEndpoint.Endpoint(services, Number, msg: Msg, id:1));
     }
 
     [Fact]
@@ -170,14 +170,15 @@ public class SveveConsumerTests
     {
         var consumer = new TestConsumer();
         var services = new ServiceCollection().AddSingleton<ISveveSmsConsumer>(consumer).BuildServiceProvider();
-        var result = await SveveEndpoint.Endpoint(services, Number, prefix: "my-code", msg: "ToCode");
+        var result = await SveveEndpoint.Endpoint(services, Number, prefix: "BALL", shortnumber: "27333", msg: "ToCode");
         Assert.IsType<Ok<string>>(result);
 
         Assert.Null(consumer.Reply);
         Assert.Null(consumer.ToDedicatedPhoneNumber);
         Assert.NotNull(consumer.ToCode);
         Assert.Equal(Number, consumer.ToCode.SenderPhoneNumber);
-        Assert.Equal("my-code", consumer.ToCode.Code);
+        Assert.Equal("BALL", consumer.ToCode.CodeWord);
+        Assert.Equal("27333", consumer.ToCode.ReceiverPhoneNumber);
         Assert.Equal("ToCode", consumer.ToCode.Message);
     }
 
@@ -223,7 +224,7 @@ public class SveveConsumerTests
     [InlineData("", HttpStatusCode.BadRequest)]
     [InlineData("number=11111111&status=true&id=1", HttpStatusCode.OK)]
     [InlineData("number=11111111&status=false&id=1&errorCode=e1&errorDesc=Unknown%20error", HttpStatusCode.OK)]
-    [InlineData("number=11111111&msg=Hello%20world&prefix=abc123", HttpStatusCode.OK)]
+    [InlineData("number=11111111&msg=Hello%20world&shortnumber=1111&prefix=abc123", HttpStatusCode.OK)]
     [InlineData("number=11111111&msg=Hello%20world&shortnumber=1111", HttpStatusCode.OK)]
     [InlineData("number=11111111&msg=Hello%20world&id=1", HttpStatusCode.OK)]
     public async Task MapSveveConsumerEndpoint(string queryParameterString, HttpStatusCode status)
@@ -247,8 +248,8 @@ public class SveveConsumerTests
         public Task SmsDelivered(OutgoingSms sms, CancellationToken cancellationToken) => Task.CompletedTask;
         public Task SmsFailed(OutgoingSms sms, SmsDeliveryError error, CancellationToken cancellationToken) => Task.CompletedTask;
         public Task SmsReceived(IncomingSmsReply sms, CancellationToken cancellationToken) => Task.CompletedTask;
-        public Task SmsReceived(IncomingSmsToCode sms, CancellationToken cancellationToken) => Task.CompletedTask;
-        public Task SmsReceived(IncomingSmsToDedicatedPhoneNumber sms, CancellationToken cancellationToken) => Task.CompletedTask;
+        public Task SmsReceived(IncomingSmsCode sms, CancellationToken cancellationToken) => Task.CompletedTask;
+        public Task SmsReceived(IncomingSms sms, CancellationToken cancellationToken) => Task.CompletedTask;
     }
 
     private static void AssertBadRequest(string partialMessage, IResult actualResult)
@@ -276,8 +277,8 @@ file sealed class TestConsumer : ISveveDeliveryConsumer, ISveveSmsConsumer
     public OutgoingSms? Failed { get; private set; }
     public SmsDeliveryError? Error { get; private set; }
     public IncomingSmsReply? Reply { get; private set; }
-    public IncomingSmsToCode? ToCode { get; private set; }
-    public IncomingSmsToDedicatedPhoneNumber? ToDedicatedPhoneNumber { get; private set; }
+    public IncomingSmsCode? ToCode { get; private set; }
+    public IncomingSms? ToDedicatedPhoneNumber { get; private set; }
 
     public Task SmsDelivered(OutgoingSms deliveredSms, CancellationToken cancellationToken)
     {
@@ -298,13 +299,13 @@ file sealed class TestConsumer : ISveveDeliveryConsumer, ISveveSmsConsumer
         return Task.CompletedTask;
     }
 
-    public Task SmsReceived(IncomingSmsToCode sms, CancellationToken cancellationToken)
+    public Task SmsReceived(IncomingSmsCode sms, CancellationToken cancellationToken)
     {
         ToCode = sms;
         return Task.CompletedTask;
     }
 
-    public Task SmsReceived(IncomingSmsToDedicatedPhoneNumber sms, CancellationToken cancellationToken)
+    public Task SmsReceived(IncomingSms sms, CancellationToken cancellationToken)
     {
         ToDedicatedPhoneNumber = sms;
         return Task.CompletedTask;
