@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using Sveve.Commands;
+﻿using Sveve.Commands;
 using Sveve.Sending;
 using System;
 using System.Collections.Generic;
@@ -34,7 +33,6 @@ public class SveveClient : IDisposable
         if (string.IsNullOrWhiteSpace(options.Password))
             throw new ArgumentNullException(nameof(options), $"{nameof(options)}.{nameof(SveveClientOptions.Password)} is required.");
 
-        Logger = options.LoggerFactory?.CreateLogger(nameof(SveveClient));
         Options = options;
         HttpClient = options.HttpClientFactory?.Invoke() ?? DefaultHttpClientFactory();
         _sendEndpoint = new SendEndpoint(this);
@@ -55,14 +53,6 @@ public class SveveClient : IDisposable
     /// HttpClient used to communicate with the Sveve API.
     /// </summary>
     internal HttpClient HttpClient { get; }
-
-    /// <summary>
-    /// A logger for this client.
-    /// </summary>
-    /// <remarks>
-    /// Can be null.
-    /// </remarks>
-    internal ILogger? Logger { get; }
 
     /// <inheritdoc />
     public void Dispose()
@@ -88,7 +78,7 @@ public class SveveClient : IDisposable
     public async Task PurchaseSmsUnitsAsync(SmsUnitOrder order, CancellationToken cancellationToken = default)
     {
         if (order is null) throw new ArgumentNullException(nameof(order));
-        await this.AdminCommand("order_sms").AddParameter("count", order.SmsCount.ToString()).InvokeAsync(cancellationToken).ConfigureAwait(false);
+        await this.AdminCommand("order_sms").AddParameter("count", order.SmsUnits.ToString()).InvokeAsync(cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>

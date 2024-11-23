@@ -1,9 +1,9 @@
 ![Sveve logo](./docs/logo.svg)
 
-> [!important]
+> [!important]  
 > This is unofficial packages and not made by or supported by Sveve.
 
-In this repository houses two packages.  
+This repository contains two packages:  
 - [Sveve](#sveve) A .NET client for the Sveve sms REST API.
 - [Sveve.AspNetCore](#sveveaspnetcore) Receive sms and delivery reports from Sveve in a .NET API.  
 
@@ -12,7 +12,7 @@ The `Sveve` package contains a client for the Sveve REST API.
 It is built on `netstandard2.0` and therefore supports most .NET environments.
 
 ## SveveClient
-While you can create a `SveveClient` using the constructor:
+To communicate with Sveve, create a `SveveClient`:
 ```cs
 var client = new SveveClient(new SveveClientOptions
 {
@@ -20,15 +20,6 @@ var client = new SveveClient(new SveveClientOptions
     Password = "password"
 });
 ```
-prefer using the `IServiceCollection` extension:
-```cs
-services.AddSveveClient(new SveveClientOptions 
-{
-    Username = "username",
-    Password = "password"
-});
-```
-The extension method automatically hooks up dependencies like logging from your `IServiceProvider`.  
 
 ## Send sms
 ```cs
@@ -73,8 +64,31 @@ sms.Repeat = SendRepeat.Monthly().Until(DateTime.Now.AddYears(1));
 await client.SendAsync(sms);
 ```
 
-> [!caution]
+> [!caution]  
 > Be very careful when making repetitions that never end.  
+
+## Sender
+If the receivers phone supports it and `Sender` is specified, it will be used as display name for the sender.
+
+To set the default `Sender` for all messages sent by `client`:
+```cs
+var client = new SveveClient(new SveveClientOptions
+{
+    Username = "...",
+    Password = "...",
+    Sender = "MyCompany"
+});
+```
+
+You can also specify a sender on the individual sms:
+```cs
+var sms = new Sms("44444444", "Badabing badabom")
+{
+    Sender = "MyCompany"
+};
+```
+> [!note]  
+> When `Sender` is specified on both `SveveClientOptions` and `Sms`, `Sms.Sender` wins.
 
 ## Replies
 ```cs
@@ -86,7 +100,7 @@ await client.SendAsync(new Sms("444 44 444", "Hello, how are you?")
 This allows the receiver to reply to the sms.  
 To handle the replies, see [Sveve.AspNetCore](#sveveaspnetcore).
 
-> [!note]
+> [!note]  
 > If `ReplyAllowed` is `true` Sveve sends the sms from a randomly generated 14-digit phone number. This means that the display-senders configured in either `SveveClientOptions.Sender` or `Sms.Sender` are ignored.
 
 If you have already sent a sms and want to send another to the same thread on the users phone:
@@ -124,11 +138,11 @@ var client = new SveveClient(new SveveClientOption
     Test = true
 });
 ```
-> [!warning]
+> [!warning]  
 > When sending messages in bulk, all messages must agree on `Sms.Test`.  
 > Otherwise an `ArgumentException` is thrown.
 
-> [!note]
+> [!note]  
 > If `SveveClientOptions.Test` is `true`, `Sms.Test` is ignored.  
 > All messages become test messages.
 
@@ -181,10 +195,10 @@ If you need more sms units, you can buy them in fixed size bulks like this:
 await client.PurchaseSmsUnitsAsync(SmsUnitOrder.Bulk500);
 ```
 
-> [!caution]
+> [!caution]  
 > Calls to `PurchaseSmsUnitsAsync` will cost you real money billed to your account.
 
-> [!tip]
+> [!tip]  
 > Bigger purchases cost you less per sms unit.
 
 ## Logs and metrics
@@ -208,10 +222,10 @@ builder.Services.AddSveveSmsConsumer<MySmsConsumer>();
 builder.Services.AddSveveConsumer<MyConsumer>();
 ```
 
-> [!note]
+> [!note]  
 > Consumers are transient by default.
 
-> [!tip]
+> [!tip]  
 > You can add multiple consumers to the same notification.
 
 After the app has been build, add an endpoint Sveve can call with notifications:
@@ -219,7 +233,7 @@ After the app has been build, add an endpoint Sveve can call with notifications:
 app.MapSveveConsumerEndpoint("api/sveve");
 ```
 
-> [!tip]
+> [!tip]  
 > If no consumers are registered for a notification or any consumer throws during handling,  
 > your API will return `500 Internal Server Error` and Sveve will try again later.
 
@@ -232,7 +246,7 @@ Once there, add the consumer URL to all callbacks:
 _The endpoint works for both GET and POST_  
 ![Sveve Dashboard](./docs/settings01.png)
 
-> [!tip] 
+> [!tip]   
 > You can also add the URL to callbacks for messages to dedicated phone numbers and code words.
 
 ## Delivery reports
@@ -297,7 +311,6 @@ class MyConsumer(GptModel gpt, SveveClient sveve) : ISveveSmsConsumer
         => Task.CompletedTask;
 }
 ```
-
 
 ## Logs and metrics
 The consumers produces logs and metrics all of which are prefixed by `Sveve`.

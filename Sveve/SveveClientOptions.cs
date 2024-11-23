@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.Net.Http;
 
 namespace Sveve;
@@ -35,9 +34,4 @@ public sealed class SveveClientOptions
     /// The factory is only used once per created <see cref="SveveClient"/>.
     /// </remarks>
     public Func<HttpClient>? HttpClientFactory { get; set; }
-
-    /// <summary>
-    /// Optional <see cref="ILoggerFactory"/>.
-    /// </summary>
-    public ILoggerFactory? LoggerFactory { get; set; }
 }

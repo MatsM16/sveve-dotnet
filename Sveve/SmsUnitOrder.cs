@@ -13,14 +13,14 @@ public sealed class SmsUnitOrder
 
     private SmsUnitOrder(int smsCount)
     {
-        SmsCount = smsCount;
+        SmsUnits = smsCount;
         _allowedOrders.Add(this);
     }
 
     /// <summary>
     /// The number of SMS units in this order.
     /// </summary>
-    public int SmsCount { get; }
+    public int SmsUnits { get; }
 
     /// <summary>
     /// Returns a list of all the allowed sms orders.
@@ -63,5 +63,5 @@ public sealed class SmsUnitOrder
     public static readonly SmsUnitOrder Bulk100_000 = new(2_000);
 
     /// <inheritdoc />
-    public override string ToString() => $"{SmsCount} SMS units";
+    public override string ToString() => $"{SmsUnits} SMS units";
 }

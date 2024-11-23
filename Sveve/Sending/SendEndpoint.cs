@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Authentication;
@@ -138,7 +137,6 @@ internal sealed class SendEndpoint(SveveClient client)
         {
             // The response does not contain the ids of any sent messages.
             // This is still a successful response.
-            client.Logger?.LogWarning("Sveve did not return any message IDs.");
             return new SendResponse(messageIds, errors, response.MsgOkCount, response.StdSMSCount);
         }
 

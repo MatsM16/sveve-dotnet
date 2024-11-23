@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Net.Http;
 using System.Security.Authentication;
 using System.Text;
 using System.Text.Encodings.Web;
@@ -11,12 +10,12 @@ namespace Sveve.Commands;
 [DebuggerDisplay($"{{{nameof(_builder)}}}")]
 internal class SveveCommand
 {
-    private readonly HttpClient _httpClient;
+    private readonly SveveClient _client;
     private readonly StringBuilder _builder = new();
 
     public SveveCommand(SveveClient client, string endpoint, string command)
     {
-        _httpClient = client.HttpClient;
+        _client = client;
         _builder.Append(endpoint).Append('?');
         AddParameter("user", client.Options.Username);
         AddParameter("passwd", client.Options.Password);
@@ -32,7 +31,7 @@ internal class SveveCommand
 
     public async Task<string> InvokeAsync(CancellationToken cancellationToken)
     {
-        var response = await _httpClient.GetAsync(_builder.ToString(), cancellationToken).ConfigureAwait(false);
+        var response = await _client.HttpClient.GetAsync(_builder.ToString(), cancellationToken).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
 
         var responseText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
