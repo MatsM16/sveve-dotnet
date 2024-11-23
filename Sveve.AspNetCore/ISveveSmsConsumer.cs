@@ -17,12 +17,12 @@ public interface ISveveSmsConsumer
     /// </summary>
     /// <param name="sms">The received SMS.</param>
     /// <param name="cancellationToken"></param>
-    Task SmsReceived(IncomingSmsToCode sms, CancellationToken cancellationToken);
+    Task SmsReceived(IncomingSmsCode sms, CancellationToken cancellationToken);
 
     /// <summary>
     /// Received a SMS to a dedicated phone number.
     /// </summary>
     /// <param name="sms">The received SMS.</param>
     /// <param name="cancellationToken"></param>
-    Task SmsReceived(IncomingSmsToDedicatedPhoneNumber sms, CancellationToken cancellationToken);
+    Task SmsReceived(IncomingSms sms, CancellationToken cancellationToken);
 }

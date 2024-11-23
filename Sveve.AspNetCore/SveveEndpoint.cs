@@ -11,11 +11,7 @@ namespace Sveve.AspNetCore;
 /// </summary>
 public static class SveveEndpoint
 {
-    /// <summary>
-    /// All activities created by <see cref="SveveEndpoint"/> are prefixed <c>"Sveve"</c>. It is also the name of the activity source.
-    /// </summary>
-    public const string ActivityNamePrefix = "Sveve";
-    private static readonly ActivitySource ActivitySource = new (ActivityNamePrefix);
+    private static readonly ActivitySource ActivitySource = new ("Sveve");
 
     /// <summary>
     /// Endpoint handler for consuming Sveve notifications.
@@ -45,78 +41,97 @@ public static class SveveEndpoint
             if (id is null)
                 return Results.BadRequest("Missing required parameter: id");
 
-            if (!services.GetRequiredServices<ISveveDeliveryConsumer>(out var deliveryConsumers))
-            {
-                services.GetService<ILogger>()?.LogCritical("Received SMS from Sveve, but no consumers are registered!");
-                return Results.StatusCode(StatusCodes.Status500InternalServerError);
-            }
-
-            var outgoingSms = new OutgoingSms(number, id.Value, refParam);
-            var error = new SmsDeliveryError(errorCode ?? "", errorDesc ?? "");
+            var sms = new OutgoingSms(number, id.Value, refParam);
 
             if (status.Value)
             {
-                using var source = ActivitySource.StartActivity($"{ActivityNamePrefix}.DeliveryReport.Success", ActivityKind.Server);
-                using var scope = services.GetService<ILogger>()?.BeginScope("Received successful delivery report from Sveve");
-                foreach (var consumer in deliveryConsumers)
-                    await consumer.SmsDelivered(outgoingSms, cancellationToken);
+                using var activity = ActivitySource.StartActivity($"Sveve.DeliveryReport", ActivityKind.Server);
+                activity?.SetTag("sveve.delivery_status", "success");
+                activity?.SetTag("sveve.reference", sms.Reference);
+                return await services.ConsumeEvent<ISveveDeliveryConsumer>("delivery_report", consumer 
+                    => consumer.SmsDelivered(sms, cancellationToken));
             }
             else
             {
-                using var source = ActivitySource.StartActivity($"{ActivityNamePrefix}.DeliveryReport.Failure", ActivityKind.Server);
-                using var scope = services.GetService<ILogger>()?.BeginScope("Received failed delivery report from Sveve");
-                foreach (var consumer in deliveryConsumers)
-                    await consumer.SmsFailed(outgoingSms, error, cancellationToken);
+                var error = new SmsDeliveryError(errorCode ?? "", errorDesc ?? "");
+                using var activity = ActivitySource.StartActivity($"Sveve.DeliveryReport", ActivityKind.Server);
+                activity?.SetTag("sveve.delivery_status", "failed");
+                activity?.SetTag("sveve.reference", sms.Reference);
+                activity?.SetTag("sveve.delivery_error", error.Code);
+                activity?.SetTag("sveve.delivery_error_description", error.Description);
+                return await services.ConsumeEvent<ISveveDeliveryConsumer>("delivery_report", consumer
+                    => consumer.SmsFailed(sms, error, cancellationToken));
             }
-
-            return Results.Ok("Delivery report accepted");
         }
 
         if (string.IsNullOrWhiteSpace(msg))
             return Results.BadRequest("Missing required parameter: msg");
 
-        if (!services.GetRequiredServices<ISveveSmsConsumer>(out var smsConsumers))
+        if (id.HasValue)
         {
-            services.GetService<ILogger>()?.LogCritical("Received SMS from Sveve, but no consumers are registered!");
-            return Results.StatusCode(StatusCodes.Status500InternalServerError);
+            var sms = new IncomingSmsReply(number, id.Value, msg);
+            using var activity = ActivitySource.StartActivity($"Sveve.IncomingSms", ActivityKind.Server);
+            activity?.AddTag("sveve.incoming_sms_type", "reply");
+            activity?.AddTag("sveve.message_id", sms.MessageId);
+            return await services.ConsumeEvent<ISveveSmsConsumer>("incoming_sms", consumer
+                => consumer.SmsReceived(sms, cancellationToken));
         }
 
-        if (!string.IsNullOrWhiteSpace(shortnumber))
-        {
-            using var source = ActivitySource.StartActivity($"{ActivityNamePrefix}.IncomingSms.DedicatedPhoneNumber", ActivityKind.Server);
-            using var scope = services.GetService<ILogger>()?.BeginScope("Received incoming sms to dedicated phone number");
-            var sms = new IncomingSmsToDedicatedPhoneNumber(shortnumber, number, msg, name, address);
-            foreach (var consumer in smsConsumers)
-                await consumer.SmsReceived(sms, cancellationToken);
-            return Results.Ok("SMS to dedicated phone number accepted");
-        }
+        if (string.IsNullOrWhiteSpace(shortnumber))
+            return Results.BadRequest("The request is ambiguous. One or more required parameters are missing.");
 
         if (!string.IsNullOrWhiteSpace(prefix))
         {
-            using var source = ActivitySource.StartActivity($"{ActivityNamePrefix}.IncomingSms.CodeWord", ActivityKind.Server);
-            using var scope = services.GetService<ILogger>()?.BeginScope("Received incoming sms to code word");
-            var sms = new IncomingSmsToCode(prefix, number, msg, name, address);
-            foreach (var consumer in smsConsumers)
-                await consumer.SmsReceived(sms, cancellationToken);
-            return Results.Ok("SMS to code word accepted");
+            var sms = new IncomingSmsCode(prefix, shortnumber, number, msg, name, address);
+            using var activity = ActivitySource.StartActivity($"Sveve.IncomingSms", ActivityKind.Server);
+            activity?.AddTag("sveve.incoming_sms_type", "code_word");
+            activity?.AddTag("sveve.code_word", sms.CodeWord);
+            activity?.AddTag("sveve.receiver_phone_number", sms.ReceiverPhoneNumber);
+            return await services.ConsumeEvent<ISveveSmsConsumer>("incoming_sms", consumer
+                => consumer.SmsReceived(sms, cancellationToken));
         }
-
-        if (id.HasValue)
+        else
         {
-            using var source = ActivitySource.StartActivity($"{ActivityNamePrefix}.IncomingSms.Reply", ActivityKind.Server);
-            using var scope = services.GetService<ILogger>()?.BeginScope("Received incoming sms to reply");
-            var sms = new IncomingSmsReply(number, id.Value, msg);
-            foreach (var consumer in smsConsumers)
-                await consumer.SmsReceived(sms, cancellationToken);
-            return Results.Ok("Reply sms accepted");
+            var sms = new IncomingSms(shortnumber, number, msg, name, address);
+            using var activity = ActivitySource.StartActivity($"Sveve.IncomingSms", ActivityKind.Server);
+            activity?.AddTag("sveve.incoming_sms_type", "dedicated_phone_number");
+            activity?.AddTag("sveve.receiver_phone_number", sms.DedicatedPhoneNumber);
+            return await services.ConsumeEvent<ISveveSmsConsumer>("incoming_sms", consumer
+                => consumer.SmsReceived(sms, cancellationToken));
         }
-
-        return Results.BadRequest("Request is ambiguous. One of \"shortnumber\", \"prefix\", \"id\" or \"status\" is required to identify the notification type.");
     }
 
-    private static bool GetRequiredServices<T>(this IServiceProvider services, out IEnumerable<T> result)
+    private static async Task<IResult> ConsumeEvent<TConsumer>(this IServiceProvider services, string eventType, Func<TConsumer, Task> consume)
     {
-        result = services.GetServices<T>().ToList();
-        return result.Any();
+        var consumers = services.GetServices<TConsumer>().ToList();
+        if (consumers.Count == 0)
+        {
+            // If the user has configured a callback at Sveve, but has not
+            // registered any consumers, this is probably a mistake.
+            // We return 500 Internal Server Error so Sveve tries again later.
+            // At least the user will be notified that the event was not consumed.
+            services.GetService<ILogger>()?.LogError("No consumers for Sveve {sveve.event_type} are registered. Register at least one {sveve.consumer_type}", eventType, typeof(TConsumer).Name);
+            return Results.StatusCode(StatusCodes.Status500InternalServerError);
+        }
+        foreach (var consumer in consumers)
+        {
+            try
+            {
+                var task = consume(consumer);
+                if (task is not null)
+                    await task;
+            }
+            catch (Exception exception)
+            {
+                // We stop the entire consumption if any consumer fails to process.
+                // This way, Sveve will try again later and at least the developers are notified.
+                services.GetService<ILogger>()?.LogError(exception, "Consumer {sveve.consumer_type} failed to process {sveve.event_type}", consumer?.GetType().Name, eventType);
+
+                // IMPORTANT: Do not leak any exception details to Sveve.
+                return Results.StatusCode(StatusCodes.Status500InternalServerError);
+            }
+        }
+        services.GetService<ILogger>()?.LogInformation("Consumed {sveve.event_type} from Sveve", eventType);
+        return Results.Ok("Accepted " + eventType);
     }
 }
