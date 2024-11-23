@@ -10,7 +10,7 @@ namespace Sveve.Commands;
 /// </summary>
 internal static class SveveCommandExtensions
 {
-    public static SveveCommand Command(this SveveClient client, string endpoint, string command) => new SveveCommand(client, endpoint, command);
+    public static SveveCommand Command(this SveveClient client, string endpoint, string command) => new (client, endpoint, command);
 
     public static SveveCommand AdminCommand(this SveveClient client, string command) => client.Command("SMS/AccountAdm", command);
 

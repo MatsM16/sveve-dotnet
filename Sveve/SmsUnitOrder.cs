@@ -6,7 +6,7 @@ namespace Sveve;
 /// <summary>
 /// A order of additional SMS units from Sveve.
 /// </summary>
-[DebuggerDisplay("{ToString()}")]
+[DebuggerDisplay("{ToString(),nq}")]
 public sealed class SmsUnitOrder
 {
     private static readonly List<SmsUnitOrder> _allowedOrders = [];

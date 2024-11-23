@@ -9,12 +9,12 @@ namespace Sveve;
 /// <summary>
 /// A response from a send SMS request.
 /// </summary>
-[DebuggerDisplay($"{{{nameof(SentCount)}}} OK, {{{nameof(Errors)}.{nameof(Errors.Count)}}} FAILED")]
+[DebuggerDisplay($"{{{nameof(SentCount)}}} sent, {{{nameof(Errors)}.{nameof(Errors.Count)}}} errors")]
 public sealed class SendResponse
 {
     private readonly IReadOnlyDictionary<SmsRecipient, int>? _messageIds;
     private readonly IReadOnlyDictionary<SmsRecipient, string> _errors;
-    private List<SendError>? _x;
+    private List<SendError>? _displayErrors;
 
     internal SendResponse(
         IReadOnlyDictionary<SmsRecipient, int>? messageIds, 
@@ -68,5 +68,5 @@ public sealed class SendResponse
     /// <summary>
     /// All errors that prevented individual messages from being sent.
     /// </summary>
-    public IReadOnlyList<SendError> Errors => _x ??= _errors.Select(x => new SendError(x.Key.ToString(), x.Value)).ToList();
+    public IReadOnlyList<SendError> Errors => _displayErrors ??= _errors.Select(x => new SendError(x.Key.ToString(), x.Value)).ToList();
 }

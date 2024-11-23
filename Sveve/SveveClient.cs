@@ -3,6 +3,7 @@ using Sveve.Commands;
 using Sveve.Sending;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net.Http;
 using System.Security.Authentication;
 using System.Threading;
@@ -13,6 +14,7 @@ namespace Sveve;
 /// <summary>
 /// A managed client for communicating with the Sveve API.
 /// </summary>
+[DebuggerDisplay($"{{{nameof(HttpClient)}.{nameof(HttpClient.BaseAddress)}}}")]
 public class SveveClient : IDisposable
 {
     private readonly SendEndpoint _sendEndpoint;

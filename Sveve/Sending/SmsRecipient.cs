@@ -8,7 +8,7 @@ namespace Sveve.Sending;
 /// <summary>
 /// Represents a recipient of an SMS message.
 /// </summary>
-[DebuggerDisplay("{_recipient}")]
+[DebuggerDisplay($"{{{nameof(_recipient)},nq}}")]
 internal sealed class SmsRecipient
 {
     /// <summary>

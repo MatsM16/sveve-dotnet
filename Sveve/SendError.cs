@@ -7,7 +7,7 @@ namespace Sveve;
 /// </summary>
 /// <param name="phoneNumber">The phone number that did not receive a SMS.</param>
 /// <param name="reason">The reason why the SMS was not sent.</param>
-[DebuggerDisplay($"{{{nameof(PhoneNumber)}}}: {{{nameof(Reason)}}}")]
+[DebuggerDisplay($"{{{nameof(PhoneNumber)},nq}}: {{{nameof(Reason)},nq}}")]
 public sealed class SendError(string phoneNumber, string reason)
 {
     /// <summary>

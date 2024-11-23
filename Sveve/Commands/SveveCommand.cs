@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Net.Http;
 using System.Security.Authentication;
 using System.Text;
@@ -7,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace Sveve.Commands;
 
+[DebuggerDisplay($"{{{nameof(_builder)}}}")]
 internal class SveveCommand
 {
     private readonly HttpClient _httpClient;

@@ -8,7 +8,7 @@ namespace Sveve;
 /// </summary>
 /// <param name="to">Comma-separated list of phone numbers and group names that will receive this sms.</param>
 /// <param name="text">The text in the sms.</param>
-[DebuggerDisplay($"{{{nameof(To)}}}: {{{nameof(Text)}}}")]
+[DebuggerDisplay($"{{{nameof(To)},nq}}: {{{nameof(Text)},nq}}")]
 public sealed class Sms(string to, string text)
 {
     /// <summary>
