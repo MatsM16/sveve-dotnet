@@ -1,6 +1,6 @@
 using System;
 
-namespace Sveve.Extensions;
+namespace Sveve.Sending;
 
 internal static class DateTimeOffsetExtensions
 {

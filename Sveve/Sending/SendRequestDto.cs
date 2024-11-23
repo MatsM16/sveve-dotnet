@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Sveve.Send;
+namespace Sveve.Sending;
 
 internal sealed class SendRequestDto
 {

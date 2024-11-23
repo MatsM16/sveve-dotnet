@@ -1,3 +1,5 @@
+using Sveve.Sending;
+
 namespace Sveve.Tests.Unit;
 
 public class SmsRecipientTests

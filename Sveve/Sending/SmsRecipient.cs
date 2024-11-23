@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
-namespace Sveve;
+namespace Sveve.Sending;
 
 /// <summary>
 /// Represents a recipient of an SMS message.

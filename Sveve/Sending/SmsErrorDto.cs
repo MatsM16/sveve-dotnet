@@ -1,4 +1,4 @@
-﻿namespace Sveve.Send;
+﻿namespace Sveve.Sending;
 
 internal sealed class SmsErrorDto
 {

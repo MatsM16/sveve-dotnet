@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using Sveve.Send;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +9,7 @@ using System.Threading.Tasks;
 using System.Net.Http.Json;
 using System.Text.Json.Serialization;
 
-namespace Sveve;
+namespace Sveve.Sending;
 
 internal sealed class SendEndpoint(SveveClient client)
 {
@@ -68,10 +67,10 @@ internal sealed class SendEndpoint(SveveClient client)
             {
                 To = sms.To,
                 Msg = sms.Text,
-                Reply = (sms.ReplyAllowed || sms.ReplyTo.HasValue) ? true : null,
+                Reply = sms.ReplyAllowed || sms.ReplyTo.HasValue ? true : null,
                 From = sms.Sender ?? client.Options.Sender,
                 ReplyTo = sms.ReplyTo,
-                DateTime = sms.SendTime?.ToString("yyyyMMddHHmm"),
+                DateTime = sms.SendTime?.ToNorwegianLocalTime().ToString("yyyyMMddHHmm"),
                 Ref = sms.Reference
             };
             sms.Repeat?.AddProperties(smsDto);

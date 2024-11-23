@@ -5,7 +5,7 @@ using System.Text.Encodings.Web;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Sveve;
+namespace Sveve.Commands;
 
 internal class SveveCommand
 {
