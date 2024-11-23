@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
-using Sveve.Extensions;
+using Sveve.Commands;
+using Sveve.Sending;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;

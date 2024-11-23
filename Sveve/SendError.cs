@@ -1,10 +1,13 @@
-﻿namespace Sveve;
+﻿using System.Diagnostics;
+
+namespace Sveve;
 
 /// <summary>
-/// Represents a SMS that was not sent.
+/// An error that occurred when trying to send a sms to <see cref="PhoneNumber"/>.
 /// </summary>
 /// <param name="phoneNumber">The phone number that did not receive a SMS.</param>
 /// <param name="reason">The reason why the SMS was not sent.</param>
+[DebuggerDisplay($"{{{nameof(PhoneNumber)}}}: {{{nameof(Reason)}}}")]
 public sealed class SendError(string phoneNumber, string reason)
 {
     /// <summary>

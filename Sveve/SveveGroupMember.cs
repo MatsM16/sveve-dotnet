@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Diagnostics;
 
 namespace Sveve;
 
@@ -7,6 +7,7 @@ namespace Sveve;
 /// </summary>
 /// <param name="phoneNumber"></param>
 /// <param name="name"></param>
+[DebuggerDisplay("{ToString(),nq}")]
 public sealed class SveveGroupMember(string phoneNumber, string? name)
 {
     /// <summary>
@@ -18,4 +19,10 @@ public sealed class SveveGroupMember(string phoneNumber, string? name)
     /// Phone number of the member.
     /// </summary>
     public string PhoneNumber { get; } = phoneNumber;
+    
+    /// <inheritdoc />
+    public override string ToString()
+    {
+        return Name is null ? PhoneNumber : $"{Name}: {PhoneNumber}";
+    }
 }

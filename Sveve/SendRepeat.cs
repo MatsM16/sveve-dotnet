@@ -1,4 +1,4 @@
-﻿using Sveve.Send;
+﻿using Sveve.Sending;
 using System;
 using System.Diagnostics;
 using System.Linq;
@@ -9,7 +9,7 @@ namespace Sveve;
 /// <summary>
 /// Defines how messages should be repeated.
 /// </summary>
-[DebuggerDisplay("{ToString,nq}")]
+[DebuggerDisplay("{ToString(),nq}")]
 public sealed class SendRepeat
 {
     private const int NotDefined = 0;

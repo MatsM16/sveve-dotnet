@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Security.Authentication;
 using System.Threading;
 using System.Threading.Tasks;
-using Sveve.Extensions;
+using Sveve.Commands;
+using Sveve.Sending;
 
 namespace Sveve;
 
@@ -14,6 +16,7 @@ namespace Sveve;
 /// <remarks>
 /// Obtained by calling <see cref="SveveClient.Group"/>.
 /// </remarks>
+[DebuggerDisplay("{ToString(),nq}")]
 public sealed class SveveGroup
 {
     private readonly SveveClient _client;

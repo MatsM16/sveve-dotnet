@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Sveve.Sending;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace Sveve;
@@ -7,6 +9,7 @@ namespace Sveve;
 /// <summary>
 /// A response from a send SMS request.
 /// </summary>
+[DebuggerDisplay($"{{{nameof(SentCount)}}} OK, {{{nameof(Errors)}.{nameof(Errors.Count)}}} FAILED")]
 public sealed class SendResponse
 {
     private readonly IReadOnlyDictionary<SmsRecipient, int>? _messageIds;
