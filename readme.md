@@ -5,7 +5,7 @@
 
 In this repository houses two packages.  
 - [Sveve](#sveve) A .NET client for the Sveve sms REST API.
-- [Sveve.AspNetCore](#sveve.aspnetcore) Receive sms and delivery reports from Sveve in a .NET API.  
+- [Sveve.AspNetCore](#sveveaspnetcore) Receive sms and delivery reports from Sveve in a .NET API.  
 
 # Sveve
 The `Sveve` package contains a client for the Sveve REST API.  
@@ -84,7 +84,7 @@ await client.SendAsync(new Sms("444 44 444", "Hello, how are you?")
 });
 ```
 This allows the receiver to reply to the sms.  
-To handle the replies, see [Sveve.AspNetCore](#sveve.aspnetcore).
+To handle the replies, see [Sveve.AspNetCore](#sveveaspnetcore).
 
 > [!note]
 > If `ReplyAllowed` is `true` Sveve sends the sms from a randomly generated 14-digit phone number. This means that the display-senders configured in either `SveveClientOptions.Sender` or `Sms.Sender` are ignored.
@@ -106,7 +106,7 @@ await client.SendAsync(new Sms("44444444", "Pleace don't ignore me :(")
     ReplyTo = messageId
 });
 ```
-To receive messages, see [Sveve.AspNetCore](#sveve.aspnetcore).
+To receive messages, see [Sveve.AspNetCore](#sveveaspnetcore).
 
 ## Testing
 Test sms are sent to Sveve but not delivered to the receiver.
