@@ -16,7 +16,7 @@ public class SendTests : IDisposable
     [Fact]
     public async Task SendAsync()
     {
-        var response = await _client.SendAsync(new Sms($"{PersonA.PhoneNumber},12345678", "Dette er en test"));
+        var response = await _client.SendAsync(new Sms($"{PersonA.PhoneNumber},12345678", "Dette er en test"), TestContext.Current.CancellationToken);
         Assert.True(response.MessageId(PersonA.PhoneNumber) > 0);
         var error = Assert.Single(response.Errors);
         Assert.Equal("12345678", error.PhoneNumber);
@@ -33,7 +33,7 @@ public class SendTests : IDisposable
             Test = true
         });
 
-        await Assert.ThrowsAsync<InvalidCredentialException>(() => client.SendAsync(new Sms(PersonA.PhoneNumber, "Dette er en test")));
+        await Assert.ThrowsAsync<InvalidCredentialException>(() => client.SendAsync(new Sms(PersonA.PhoneNumber, "Dette er en test"), TestContext.Current.CancellationToken));
     }
 
     public void Dispose()

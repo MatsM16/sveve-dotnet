@@ -23,35 +23,35 @@ public class SveveClientTests
         var client = new SveveClient("invalid", "invalid");
         client.Dispose();
 
-        await Assert.ThrowsAsync<ObjectDisposedException>(() => client.SendAsync(new Sms("a", "b")));
-        await Assert.ThrowsAsync<ObjectDisposedException>(() => client.RemainingSmsUnitsAsync());
-        await Assert.ThrowsAsync<ObjectDisposedException>(() => client.PurchaseSmsUnitsAsync(SmsUnitOrder.Bulk500));
-        await Assert.ThrowsAsync<ObjectDisposedException>(() => client.GroupsAsync());
+        await Assert.ThrowsAsync<ObjectDisposedException>(() => client.SendAsync(new Sms("a", "b"), TestContext.Current.CancellationToken));
+        await Assert.ThrowsAsync<ObjectDisposedException>(() => client.RemainingSmsUnitsAsync(TestContext.Current.CancellationToken));
+        await Assert.ThrowsAsync<ObjectDisposedException>(() => client.PurchaseSmsUnitsAsync(SmsUnitOrder.Bulk500, TestContext.Current.CancellationToken));
+        await Assert.ThrowsAsync<ObjectDisposedException>(() => client.GroupsAsync(TestContext.Current.CancellationToken));
 
-        await Assert.ThrowsAsync<ObjectDisposedException>(() => client.Group("g").CreateAsync());
-        await Assert.ThrowsAsync<ObjectDisposedException>(() => client.Group("g").DeleteAsync());
-        await Assert.ThrowsAsync<ObjectDisposedException>(() => client.Group("g").ExistsAsync());
-        await Assert.ThrowsAsync<ObjectDisposedException>(() => client.Group("g").AddMemberAsync("1234"));
-        await Assert.ThrowsAsync<ObjectDisposedException>(() => client.Group("g").RemoveMemberAsync("1234"));
-        await Assert.ThrowsAsync<ObjectDisposedException>(() => client.Group("g").MoveToAsync("g2"));
-        await Assert.ThrowsAsync<ObjectDisposedException>(() => client.Group("g").MoveToAsync("g2", "1234"));
-        await Assert.ThrowsAsync<ObjectDisposedException>(() => client.Group("g").HasMemberAsync("1234"));
+        await Assert.ThrowsAsync<ObjectDisposedException>(() => client.Group("g").CreateAsync(TestContext.Current.CancellationToken));
+        await Assert.ThrowsAsync<ObjectDisposedException>(() => client.Group("g").DeleteAsync(TestContext.Current.CancellationToken));
+        await Assert.ThrowsAsync<ObjectDisposedException>(() => client.Group("g").ExistsAsync(TestContext.Current.CancellationToken));
+        await Assert.ThrowsAsync<ObjectDisposedException>(() => client.Group("g").AddMemberAsync("1234", cancellationToken: TestContext.Current.CancellationToken));
+        await Assert.ThrowsAsync<ObjectDisposedException>(() => client.Group("g").RemoveMemberAsync("1234", TestContext.Current.CancellationToken));
+        await Assert.ThrowsAsync<ObjectDisposedException>(() => client.Group("g").MoveToAsync("g2", TestContext.Current.CancellationToken));
+        await Assert.ThrowsAsync<ObjectDisposedException>(() => client.Group("g").MoveToAsync("g2", "1234", TestContext.Current.CancellationToken));
+        await Assert.ThrowsAsync<ObjectDisposedException>(() => client.Group("g").HasMemberAsync("1234", TestContext.Current.CancellationToken));
     }
 
     [Fact]
     public async Task PurchaseRequiresUnitOrder()
     {
         using var client = new SveveClient("invalid", "invalid");
-        await Assert.ThrowsAsync<ArgumentNullException>(() => client.PurchaseSmsUnitsAsync(null!));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => client.PurchaseSmsUnitsAsync(null!, TestContext.Current.CancellationToken));
     }
 
     [Fact]
     public async Task CannotSendNullSms()
     {
         using var client = new SveveClient("invalid", "invalid");
-        await Assert.ThrowsAsync<ArgumentNullException>(() => client.SendAsync((Sms)null!));
-        await Assert.ThrowsAsync<ArgumentNullException>(() => client.SendAsync((IEnumerable<Sms>)null!));
-        await Assert.ThrowsAsync<ArgumentNullException>(() => client.SendAsync([null!]));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => client.SendAsync((Sms)null!, TestContext.Current.CancellationToken));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => client.SendAsync((IEnumerable<Sms>)null!, TestContext.Current.CancellationToken));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => client.SendAsync([null!], TestContext.Current.CancellationToken));
     }
 
     [Fact]
@@ -63,9 +63,9 @@ public class SveveClientTests
         var bt = new Sms("b", "bt") { Test = true };
 
         using var client = new SveveClient("invalid", "invalid");
-        await Assert.ThrowsAsync<InvalidCredentialException>(() => client.SendAsync([a, b]));
-        await Assert.ThrowsAsync<InvalidCredentialException>(() => client.SendAsync([at, bt]));
-        await Assert.ThrowsAsync<ArgumentException>(() => client.SendAsync([a, bt]));
-        await Assert.ThrowsAsync<ArgumentException>(() => client.SendAsync([at, b]));
+        await Assert.ThrowsAsync<InvalidCredentialException>(() => client.SendAsync([a, b], TestContext.Current.CancellationToken));
+        await Assert.ThrowsAsync<InvalidCredentialException>(() => client.SendAsync([at, bt], TestContext.Current.CancellationToken));
+        await Assert.ThrowsAsync<ArgumentException>(() => client.SendAsync([a, bt], TestContext.Current.CancellationToken));
+        await Assert.ThrowsAsync<ArgumentException>(() => client.SendAsync([at, b], TestContext.Current.CancellationToken));
     }
 }

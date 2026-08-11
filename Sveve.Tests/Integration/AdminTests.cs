@@ -14,7 +14,7 @@ public class AdminTests : IDisposable
     [Fact]
     public async Task RemainingSms()
     {
-        var remainingSmsUnits = await _client.RemainingSmsUnitsAsync();
+        var remainingSmsUnits = await _client.RemainingSmsUnitsAsync(TestContext.Current.CancellationToken);
         Assert.True(remainingSmsUnits > 0, "The configured account has no remaining SMS units");
     }
 
@@ -27,8 +27,8 @@ public class AdminTests : IDisposable
             Password = "invalid"
         });
 
-        await Assert.ThrowsAsync<InvalidCredentialException>(() => client.PurchaseSmsUnitsAsync(SmsUnitOrder.Bulk500));
-        await Assert.ThrowsAsync<InvalidCredentialException>(() => client.RemainingSmsUnitsAsync());
+        await Assert.ThrowsAsync<InvalidCredentialException>(() => client.PurchaseSmsUnitsAsync(SmsUnitOrder.Bulk500, TestContext.Current.CancellationToken));
+        await Assert.ThrowsAsync<InvalidCredentialException>(() => client.RemainingSmsUnitsAsync(TestContext.Current.CancellationToken));
     }
 
     public void Dispose()
